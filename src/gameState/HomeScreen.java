@@ -6,35 +6,34 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class HomeScreen {
-    public static boolean GamePlay = false; 
-    public static int timeTicks = 60;
+    public static boolean game_play = false; 
+    public static int time_ticks = 60;
     public HomeScreen(JFrame frame){
         HomePanel background_panel = new HomePanel();
         frame.getContentPane().add(background_panel);
+        
         while(true){
-            Timer timer = new Timer(timeTicks, new ActionListener() {
+            Timer timer = new Timer(time_ticks, new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {
                     long currentTime = System.currentTimeMillis();
                     long deltaTime = currentTime - lastUpdateTime;
     
-                    if(deltaTime >= timeTicks){
+                    if(deltaTime >= time_ticks){
                         // System.out.println("DeltaTime: " + deltaTime);
                         lastUpdateTime = currentTime;
-                        if( GamePlay == true){   
-                            frame.getContentPane().remove(background_panel);
-                            frame.revalidate();
-                            frame.repaint();
-                        }
                     }
                 }
             });
-
-            timer.start();
     
+            timer.start();
+
             frame.revalidate();
             frame.repaint();
-
-            if(GamePlay == true)    break;
+            if(game_play == true){
+                frame.getContentPane().remove(background_panel);
+                timer.stop();
+                break;
+            }
         }
 
     }
@@ -61,7 +60,7 @@ class HomePanel extends JPanel implements KeyListener {
         });
     }
     public void keyPressed(KeyEvent e) {
-        HomeScreen.GamePlay = true;
+        HomeScreen.game_play = true;
         this.removeAll();
         this.revalidate();
     }
