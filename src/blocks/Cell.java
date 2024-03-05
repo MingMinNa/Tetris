@@ -11,6 +11,9 @@ public class Cell {
     }
 
     public String getColor(){ return this.color;}
+    public void setColor(String color){   this.color = color;}
+    public int getX(){return block_x_index;}
+    public int getY(){return block_y_index;}
     // ------------------------------------
     private int block_x_index;
     private int block_y_index;
