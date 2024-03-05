@@ -13,32 +13,15 @@ public class HomeScreen {
         frame.getContentPane().add(background_panel);
         
         while(true){
-            Timer timer = new Timer(time_ticks, new ActionListener() {
-                public void actionPerformed(ActionEvent evt) {
-                    long currentTime = System.currentTimeMillis();
-                    long deltaTime = currentTime - lastUpdateTime;
-    
-                    if(deltaTime >= time_ticks){
-                        // System.out.println("DeltaTime: " + deltaTime);
-                        lastUpdateTime = currentTime;
-                    }
-                }
-            });
-    
-            timer.start();
 
             frame.revalidate();
             frame.repaint();
             if(game_play == true){
                 frame.getContentPane().remove(background_panel);
-                timer.stop();
                 break;
             }
         }
-
     }
-    // ----------------------------------------
-    private long lastUpdateTime = System.currentTimeMillis();
 }
 class HomePanel extends JPanel implements KeyListener {
     public HomePanel() {
