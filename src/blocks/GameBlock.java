@@ -20,16 +20,15 @@ public class GameBlock {
         add("yellow");
         add("gray");
     }};
-    public GameBlock(Cell [] dominated_cells, int type, int color_idx)
-    {
-        this(type,color_idx);
-        for_preview = false;
-        setCurrentCells(dominated_cells);
-    }
-    // for preview type 
+
     public GameBlock(int type, int color_idx){
         for_preview = true;
         setColor(color_idx);
+        setBlockType(type);
+    }
+    public GameBlock(int type, String color_str){
+        for_preview = true;
+        setColor(color_str);
         setBlockType(type);
     }
     
@@ -47,19 +46,15 @@ public class GameBlock {
     }
 
     public int getBlockType(){return block_type;}
-    public void setBlockType(int idx){block_type = idx;}
-
-    public Cell[] getCurrentCells(){return current_cells;}
-    public void setCurrentCells(Cell [] next_cells){
-        for(int i = 0;i < 4;i ++){
-            current_cells[i] = next_cells[i]; 
-        }
+    public void setBlockType(int idx){
+        if(idx <= 6 && idx >= 0)
+            block_type = idx;
     }
+
     
     public boolean getForPreview(){return for_preview;}
     
     // -----------------------------
-    private Cell [] current_cells = new Cell[4];
     private int block_type = -1;
     private String color = "red";
     private boolean for_preview = false;
