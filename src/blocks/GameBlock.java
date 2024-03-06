@@ -1,13 +1,7 @@
 package blocks;
-import blocks.Cell;
-import gameState.GameScreen;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import javax.swing.*;
-import gameState.*;
 
 public class GameBlock {
     public static List<String> color_list =  new ArrayList<>(){{
@@ -77,7 +71,7 @@ public class GameBlock {
     }
     public int getCenterX(){return block_center_x;}
     public int getCenterY(){return block_center_y;}
-    public int setPosition(int x, int y){block_center_x = x; block_center_y = y}
+    public int setPosition(int x, int y){block_center_x = x; block_center_y = y;}
     public int getBlockState(){return block_state;}
     public void nextState(){block_state = (block_state + 1) % 4;}
     // -----------------------------
