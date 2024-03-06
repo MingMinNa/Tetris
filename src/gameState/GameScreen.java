@@ -46,26 +46,25 @@ public class GameScreen {
                 long currentTime = System.currentTimeMillis();
                 long deltaTime = currentTime - last_update_time;
                 
-                if(count >= 5){
+                if(count >= 3){
                     // System.out.println("DeltaTime2: " + deltaTime);
                     count = 0;
                     background_panel.cellPositionUpdate(game_area_cells);
         
                     // System.out.println("Hllefewfweo");
-                    if(background_panel.checkMoveDown(current_cells, game_area_cells)){
-                        for(int i = 0; i < 4; i ++ ){
-                            Cell cell = current_cells[i];
-                            game_area_cells[cell.getY() + 1][cell.getX()].setColor(cell.getColor());
-                            game_area_cells[cell.getY()][cell.getX()].setColor("black");
-                            current_cells[i] = game_area_cells[cell.getY() + 1][cell.getX()];
-                        }
-                    }
-                    else{
+                    
+                    if(tryMove("down") == false){
                         if(current_cells[3].getY() <= 2){
                             game_over = true;
                             break;
                         }
                         current_block = null;
+                        
+                        background_panel.gameLineCheck(game_area_cells);
+                        background_panel.cellPositionUpdate(game_area_cells);
+                        background_panel.revalidate();
+                        frame_temp.revalidate();
+                        frame_temp.repaint();
                     }
                     background_panel.revalidate();
                     frame_temp.revalidate();
@@ -82,20 +81,72 @@ public class GameScreen {
                     }
                     // keyboard operation
                     String pressed_key = GameKeyHandler.getCurrentKey();
-                    // System.out.println(pressed_key);
                     if( pressed_key.equals("left")){
-
-                    }
+                        tryMove("left");
+                    }   
                     else if(pressed_key.equals("right")){
-
+                        tryMove("right");
                     }
                     else if(pressed_key.equals("down")){
-                        
+                        count = 0;
+                        if(tryMove("down") == false){
+                            if(current_cells[3].getY() <= 2){
+                                game_over = true;
+                                break;
+                            }
+                            current_block = null;
+                            background_panel.gameLineCheck(game_area_cells);
+                        }
                     }
+                    background_panel.cellPositionUpdate(game_area_cells);
+                    background_panel.revalidate();
+                    frame_temp.revalidate();
+                    frame_temp.repaint();
                 }
 
                 if(game_over == true)    break;
             }
+        }
+
+        private boolean tryMove(String direction){
+            if(direction.equals("down")){
+                if(background_panel.checkMoveDown(current_cells, game_area_cells)){
+                    for(int i = 0; i < 4; i ++ ){
+                        Cell cell = current_cells[i];
+                        game_area_cells[cell.getY() + 1][cell.getX()].setColor(cell.getColor());
+                        game_area_cells[cell.getY()][cell.getX()].setColor("black");
+                        current_cells[i] = game_area_cells[cell.getY() + 1][cell.getX()];
+                    }
+                    return true;
+                }
+                return false;
+            }
+            else if(direction == "left"){
+                if(background_panel.checkMoveLeft(current_cells, game_area_cells)){
+                    // System.out.println("Hello");
+                    for(int i = 0; i < 4; i ++ ){
+                        Cell cell = current_cells[i];
+                        game_area_cells[cell.getY()][cell.getX() - 1].setColor(cell.getColor());
+                        game_area_cells[cell.getY()][cell.getX()].setColor("black");
+                        current_cells[i] = game_area_cells[cell.getY()][cell.getX() - 1];
+                    }
+                    return true;
+                }
+                return false;
+            }
+            else if(direction == "right"){
+                if(background_panel.checkMoveRight(current_cells, game_area_cells)){
+                    for(int i = 3; i >= 0; i -- ){
+                        Cell cell = current_cells[i];
+                        game_area_cells[cell.getY()][cell.getX() + 1].setColor(cell.getColor());
+                        game_area_cells[cell.getY()][cell.getX()].setColor("black");
+                        current_cells[i] = game_area_cells[cell.getY()][cell.getX() + 1];
+                    }
+                    return true;
+                }
+                return false;
+            }
+            return false;
         }
     }
 
@@ -116,6 +167,7 @@ public class GameScreen {
         preview_blocks[0].setBlockType(preview_blocks[1].getBlockType());
         preview_blocks[0].setColor(preview_blocks[1].getColor());
         preview_blocks[1].setBlockType(rnd.nextInt(7));
+        // preview_blocks[1].setBlockType(1);
         preview_blocks[1].setColor(rnd.nextInt(7));
         int init_x = rnd.nextInt(0, 7);
         /*
@@ -213,15 +265,17 @@ class GamePanel extends JPanel{
 
     public void gameLineCheck(Cell [][] game_area_cells){
         int del_line = 0;
-        for(int i = label_cells.length - 1; i > 1; i--){
+        for(int i = game_area_cells.length - 1; i > 1; i--){
             boolean all_filled = true;
-            for(int j = 0; j < label_cells[0].length; j++){
+            for(int j = 0; j < game_area_cells[0].length; j++){
                 if(game_area_cells[i][j].getColor().equals("black")){all_filled = false; break;}
             }
             if(all_filled == false){
-                for(int j = 0; j < label_cells[0].length; j++)
-                    game_area_cells[i - del_line][j].setColor(game_area_cells[i][j].getColor());
+                for(int j = 0; j < game_area_cells[0].length; j++)
+                    game_area_cells[i + del_line][j].setColor(game_area_cells[i][j].getColor());
             }
+            else
+                del_line++;
         }
     }
     public void cellPositionUpdate(Cell [][] game_area_cells){
@@ -261,6 +315,47 @@ class GamePanel extends JPanel{
         return moveDown;
     }
 
+    public boolean checkMoveLeft(Cell [] current_cells,Cell [][] game_area_cells){
+        List<Integer> cells_list =  new ArrayList<>();
+        for(Cell dominated_cell: current_cells){
+            cells_list.add(100 * dominated_cell.getX() + dominated_cell.getY());
+            // System.out.println(100 * dominated_cell.getX() + dominated_cell.getY());
+        }
+        boolean move = true;
+        for(int i = 0; i < 4;i ++){
+            if(current_cells[i].getX() - 1 < 0){
+                move = false;
+                break;
+            }
+            if(cells_list.contains(100 * (current_cells[i].getX() - 1) + current_cells[i].getY()) == false && 
+                game_area_cells[current_cells[i].getY()][current_cells[i].getX() - 1].getColor().equals("black") == false){
+                move = false;
+                break;
+            }
+        }
+        return move;
+    }
+
+    public boolean checkMoveRight(Cell [] current_cells,Cell [][] game_area_cells){
+        List<Integer> cells_list =  new ArrayList<>();
+        for(Cell dominated_cell: current_cells){
+            cells_list.add(100 * dominated_cell.getX() + dominated_cell.getY());
+            // System.out.println(100 * dominated_cell.getX() + dominated_cell.getY());
+        }
+        boolean move = true;
+        for(int i = 0; i < 4;i ++){
+            if(current_cells[i].getX() + 1 >= 10){
+                move = false;
+                break;
+            }
+            if(cells_list.contains(100 * (current_cells[i].getX() + 1) + current_cells[i].getY()) == false && 
+                game_area_cells[current_cells[i].getY()][current_cells[i].getX() + 1].getColor().equals("black") == false){
+                move = false;
+                break;
+            }
+        }
+        return move;
+    }
     
     /*
      * block_type
