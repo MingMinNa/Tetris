@@ -15,6 +15,7 @@ public class Tetris {
         new HomeScreen(frame);
         // System.out.println("Hello");
         new GameScreen(frame);
+        // System.out.println("Game End");
         frame.revalidate();
         frame.repaint();
     }
