@@ -71,7 +71,6 @@ public class GameBlock {
     }
     public int getCenterX(){return block_center_x;}
     public int getCenterY(){return block_center_y;}
-    public int setPosition(int x, int y){block_center_x = x; block_center_y = y;}
     public int getBlockState(){return block_state;}
     public void nextState(){block_state = (block_state + 1) % 4;}
     // -----------------------------
