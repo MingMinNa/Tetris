@@ -10,6 +10,7 @@ public class HomeScreen {
     public static int time_ticks = 60;
     public HomeScreen(JFrame frame){
         HomePanel background_panel = new HomePanel();
+        HomeKeyHandler.setPanel(background_panel);
         frame.getContentPane().add(background_panel);
         
         while(true){
@@ -23,9 +24,9 @@ public class HomeScreen {
         }
     }
 }
-class HomePanel extends JPanel implements KeyListener {
+class HomePanel extends JPanel{
     public HomePanel() {
-        // 設置 JPanel 的屬性
+
         setPreferredSize(new Dimension(300, 200));
         setFocusable(true);
         setBackground(Color.BLACK);
@@ -35,20 +36,13 @@ class HomePanel extends JPanel implements KeyListener {
 
         keyboard_description(this);
         game_cover();
-        addKeyListener(this);
+        addKeyListener(new HomeKeyHandler());
         addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 requestFocusInWindow();
             }
         });
     }
-    public void keyPressed(KeyEvent e) {
-        HomeScreen.game_play = true;
-        this.removeAll();
-        this.revalidate();
-    }
-    public void keyReleased(KeyEvent e) {}
-    public void keyTyped(KeyEvent e) {}
     
 
     private JLabel labelMake(int center_x, int center_y, String words){
@@ -120,4 +114,22 @@ class HomePanel extends JPanel implements KeyListener {
         this.add(coverLabel);
     }
 
+}
+
+class HomeKeyHandler implements KeyListener{
+    
+    @Override
+    public void keyPressed(KeyEvent e) {
+        HomeScreen.game_play = true;
+        control_panel.removeAll();
+        control_panel.revalidate();
+    }
+    @Override
+    public void keyReleased(KeyEvent e) {}
+    @Override
+    public void keyTyped(KeyEvent e) {}
+
+    public static void setPanel(HomePanel background_panel){control_panel = background_panel;}
+    // ---------------------------
+    private static HomePanel control_panel;
 }
