@@ -110,8 +110,9 @@ public class GameScreen {
                         background_panel.gameLineCheck(game_area_cells);
                     }
                     else if(pressed_key.equals("shift")){
-                        System.out.println("Shift");
+                        // System.out.println("Shift");
                         GameKeyHandler.changeShiftState();
+                        tryRotate();
                     }
                     if(count2 >= 2)
                         count2 = 0;
@@ -134,6 +135,7 @@ public class GameScreen {
                         game_area_cells[cell.getY()][cell.getX()].setColor("black");
                         current_cells[i] = game_area_cells[cell.getY() + 1][cell.getX()];
                     }
+                    current_block.setBlockCenter(current_block.getCenterX(), current_block.getCenterY() + 1);
                     return true;
                 }
                 return false;
@@ -147,6 +149,7 @@ public class GameScreen {
                         game_area_cells[cell.getY()][cell.getX()].setColor("black");
                         current_cells[i] = game_area_cells[cell.getY()][cell.getX() - 1];
                     }
+                    current_block.setBlockCenter(current_block.getCenterX() - 1, current_block.getCenterY());
                     return true;
                 }
                 return false;
@@ -159,11 +162,42 @@ public class GameScreen {
                         game_area_cells[cell.getY()][cell.getX()].setColor("black");
                         current_cells[i] = game_area_cells[cell.getY()][cell.getX() + 1];
                     }
+                    current_block.setBlockCenter(current_block.getCenterX() + 1, current_block.getCenterY());
                     return true;
                 }
                 return false;
             }
             return false;
+        }
+
+        private void tryRotate(){
+            if(background_panel.checkRotate(current_block, current_cells, game_area_cells)){
+                // System.out.println("Rotatte!!!");
+                int next_state = (current_block.getBlockState() + 1) % 4;
+                int block_type = current_block.getBlockType();
+                String block_color = current_block.getColor();
+                int center_x = current_block.getCenterX(), center_y = current_block.getCenterY();
+                
+                for(int i = 0; i < 4;i++)
+                    game_area_cells[current_cells[i].getY()][current_cells[i].getX()].setColor("black");
+                for(int i = 0; i < 4;i++){
+                    int next_x = center_x + GameBlock.block_dist[block_type][next_state][i][1];
+                    int next_y = center_y + GameBlock.block_dist[block_type][next_state][i][0];
+                    current_cells[i] = game_area_cells[next_y][next_x];
+                    current_cells[i].setColor(block_color);
+                }
+                for(int i = 0; i < 3;i ++){
+                    for(int j = 0;j < 3;j ++){
+                        // y: down to up, x: left to right
+                        if(current_cells[j].getY() < current_cells[j+1].getY() || (current_cells[j].getY() == current_cells[j+1].getY() && current_cells[j].getX() > current_cells[j+1].getX())){
+                            Cell temp_cell = current_cells[j];
+                            current_cells[j] = current_cells[j + 1];
+                            current_cells[j + 1] = temp_cell;
+                        }
+                    }
+                }
+                current_block.nextState();
+            }
         }
     }
 
@@ -192,31 +226,31 @@ public class GameScreen {
         * 0: I block
         *  * * * * * *
         *  * * * * * *
-        *  x x x x * *
+        *  x o x x * *
         * 1: O block
         *  * * * * * *
-        *  x x * * * *
+        *  o x * * * *
         *  x x * * * *
         * 2: S block
         *  * * * * * *
         *  * x x * * *
-        *  x x * * * *
+        *  x o * * * *
         * 3: Z block
         *  * * * * * *
         *  x x * * * *
-        *  * x x * * *
+        *  * o x * * *
         * 4: J block 
         *  * * * * * *
         *  x * * * * * 
-        *  x x x * * * 
+        *  x o x * * * 
         * 5: L block
         *  * * * * * *
         *  * * x * * *
-        *  x x x * * *
+        *  x o x * * *
         * 6: T block
         *  * * * * * *
         *  * x * * * * 
-        *  x x x * * * 
+        *  x o x * * * 
         */
         int [][][] colored_pos = {
             {{2, 0}, {2, 1}, {2, 2}, {2, 3}}, 
@@ -227,13 +261,13 @@ public class GameScreen {
             {{1, 2}, {2, 2}, {2, 0}, {2, 1}}, 
             {{1, 1}, {2, 2}, {2, 0}, {2, 1}}};
         for(int i = 0; i < 4;i ++){
-            // System.out.println(colored_pos[block_type][i][0] + 1);
-            // System.out.println(colored_pos[block_type][i][1] + init_x);
+
             this.game_area_cells[colored_pos[block_type][i][0]][colored_pos[block_type][i][1] + init_x].setColor(block_color);
             current_cells[i] = game_area_cells[colored_pos[block_type][i][0]][colored_pos[block_type][i][1] + init_x];
         }
         for(int i = 0; i < 3;i ++){
             for(int j = 0;j < 3;j ++){
+                // y: down to up, x: left to right
                 if(current_cells[j].getY() < current_cells[j+1].getY() || (current_cells[j].getY() == current_cells[j+1].getY() && current_cells[j].getX() > current_cells[j+1].getX())){
                     Cell temp_cell = current_cells[j];
                     current_cells[j] = current_cells[j + 1];
@@ -241,7 +275,9 @@ public class GameScreen {
                 }
             }
         }
-        current_block = new GameBlock(block_type, block_color);
+        int [] center_cell_index = {1, 2, 1, 0, 1, 1, 1};    
+        current_block = new GameBlock(current_cells[center_cell_index[block_type]].getX(), current_cells[center_cell_index[block_type]].getY(),block_type, block_color);
+        
         return;
     }
 }
@@ -335,12 +371,14 @@ class GamePanel extends JPanel{
         get_next_cell_x.put("right", (x)->(x.getX() + 1));
         get_next_cell_y.put("right", (x)->(x.getY()));
         for(int i = 0; i < 4;i ++){
+            int next_x = get_next_cell_x.get(direction).apply(current_cells[i]);
+            int next_y = get_next_cell_y.get(direction).apply(current_cells[i]);
             if(check_touch_border.get(direction).apply(current_cells[i])){
                 move = false;
                 break;
             }
-            if(cells_list.contains(100 * (get_next_cell_x.get(direction).apply(current_cells[i])) + get_next_cell_y.get(direction).apply(current_cells[i])) == false && 
-                game_area_cells[get_next_cell_y.get(direction).apply(current_cells[i])][get_next_cell_x.get(direction).apply(current_cells[i])].getColor().equals("black") == false){
+            if(cells_list.contains(100 * next_x + next_y) == false && 
+                game_area_cells[next_y][next_x].getColor().equals("black") == false){
                 move = false;
                 break;
             }
@@ -348,6 +386,30 @@ class GamePanel extends JPanel{
         return move;
     }
 
+    public boolean checkRotate(GameBlock current_block, Cell [] current_cells, Cell[][] game_area_cells){
+        int block_type = current_block.getBlockType();
+        int next_state = (current_block.getBlockState() + 1) % 4;
+        if(block_type == 1) // O block, rotate operation is useless
+            return false;
+        List<Integer> current_cells_pos = new ArrayList<>();
+        for(int i = 0; i < 4; i++){
+            // 100 * x + y
+            current_cells_pos.add(100 * current_cells[i].getX() + current_cells[i].getY());
+        }
+        boolean rotate = true;
+        int center_x = current_block.getCenterX(), center_y = current_block.getCenterY();
+        for(int i = 0; i < 4; i++){
+            int next_x = center_x + GameBlock.block_dist[block_type][next_state][i][1];
+            int next_y = center_y + GameBlock.block_dist[block_type][next_state][i][0];
+            if(next_x < 0 || next_x >= game_area_x_cnt || next_y < 0 || next_y >= game_area_y_cnt){
+                rotate = false;break;
+            }
+            if(current_cells_pos.contains(100 * (next_x) + next_y) == false && game_area_cells[next_y][next_x].getColor().equals("black") == false){
+                rotate = false;break;
+            }
+        }
+        return rotate;
+    }
     /*
      * block_type
      * 0: I block
