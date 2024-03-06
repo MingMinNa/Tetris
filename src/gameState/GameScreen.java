@@ -12,6 +12,7 @@ import java.util.Random;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.function.*;
 
 public class GameScreen { 
     public static int time_ticks = 100;
@@ -62,9 +63,6 @@ public class GameScreen {
                         
                         background_panel.gameLineCheck(game_area_cells);
                         background_panel.cellPositionUpdate(game_area_cells);
-                        background_panel.revalidate();
-                        frame_temp.revalidate();
-                        frame_temp.repaint();
                     }
                     background_panel.revalidate();
                     frame_temp.revalidate();
@@ -98,6 +96,16 @@ public class GameScreen {
                             background_panel.gameLineCheck(game_area_cells);
                         }
                     }
+                    else if(pressed_key.equals("space")){
+                        count = 0;
+                        while(tryMove("down") == true){GameKeyHandler.changeSpaceState();}
+                        if(current_cells[3].getY() <= 2){
+                            game_over = true;
+                            break;
+                        }
+                        current_block = null;
+                        background_panel.gameLineCheck(game_area_cells);
+                    }
                     background_panel.cellPositionUpdate(game_area_cells);
                     background_panel.revalidate();
                     frame_temp.revalidate();
@@ -110,7 +118,7 @@ public class GameScreen {
 
         private boolean tryMove(String direction){
             if(direction.equals("down")){
-                if(background_panel.checkMoveDown(current_cells, game_area_cells)){
+                if(background_panel.checkMove(current_cells, game_area_cells, direction)){
                     for(int i = 0; i < 4; i ++ ){
                         Cell cell = current_cells[i];
                         game_area_cells[cell.getY() + 1][cell.getX()].setColor(cell.getColor());
@@ -122,7 +130,7 @@ public class GameScreen {
                 return false;
             }
             else if(direction == "left"){
-                if(background_panel.checkMoveLeft(current_cells, game_area_cells)){
+                if(background_panel.checkMove(current_cells, game_area_cells, direction)){
                     // System.out.println("Hello");
                     for(int i = 0; i < 4; i ++ ){
                         Cell cell = current_cells[i];
@@ -135,7 +143,7 @@ public class GameScreen {
                 return false;
             }
             else if(direction == "right"){
-                if(background_panel.checkMoveRight(current_cells, game_area_cells)){
+                if(background_panel.checkMove(current_cells, game_area_cells, direction)){
                     for(int i = 3; i >= 0; i -- ){
                         Cell cell = current_cells[i];
                         game_area_cells[cell.getY()][cell.getX() + 1].setColor(cell.getColor());
@@ -293,7 +301,44 @@ class GamePanel extends JPanel{
             }
         }
     }
-    
+
+    // merge all the function "checkMoveDown", "checkMoveLeft" and "checkMoveRight"
+    public boolean checkMove(Cell [] current_cells,Cell [][] game_area_cells, String direction){
+        List<Integer> cells_list =  new ArrayList<>();
+        for(Cell dominated_cell: current_cells){
+            cells_list.add(100 * dominated_cell.getX() + dominated_cell.getY());
+            // System.out.println(100 * dominated_cell.getX() + dominated_cell.getY());
+        }
+        boolean move = true;
+        Map<String,Function<Cell, Boolean>> check_touch_border = new HashMap<>();
+        check_touch_border.put("down",(x) -> (x.getY() + 1 >= 23));
+        check_touch_border.put("left", (x) -> (x.getX() - 1 < 0));
+        check_touch_border.put("right", (x) -> (x.getX() + 1 >= 10));
+
+        Map<String,Function<Cell,Integer>> get_next_cell_x = new HashMap<>();
+        Map<String,Function<Cell,Integer>> get_next_cell_y = new HashMap<>();
+        get_next_cell_x.put("down", (x)->(x.getX()));
+        get_next_cell_y.put("down", (x)->(x.getY() + 1));
+        
+        get_next_cell_x.put("left", (x)->(x.getX() - 1));
+        get_next_cell_y.put("left", (x)->(x.getY()));
+
+        get_next_cell_x.put("right", (x)->(x.getX() + 1));
+        get_next_cell_y.put("right", (x)->(x.getY()));
+        for(int i = 0; i < 4;i ++){
+            if(check_touch_border.get(direction).apply(current_cells[i])){
+                move = false;
+                break;
+            }
+            if(cells_list.contains(100 * (get_next_cell_x.get(direction).apply(current_cells[i])) + get_next_cell_y.get(direction).apply(current_cells[i])) == false && 
+                game_area_cells[get_next_cell_y.get(direction).apply(current_cells[i])][get_next_cell_x.get(direction).apply(current_cells[i])].getColor().equals("black") == false){
+                move = false;
+                break;
+            }
+        }
+        return move;
+    }
+    /*
     public boolean checkMoveDown(Cell [] current_cells,Cell [][] game_area_cells){
         List<Integer> cells_list =  new ArrayList<>();
         for(Cell dominated_cell: current_cells){
@@ -356,7 +401,8 @@ class GamePanel extends JPanel{
         }
         return move;
     }
-    
+    */
+
     /*
      * block_type
      * 0: I block
@@ -467,11 +513,16 @@ class GamePanel extends JPanel{
 
 
 class GameKeyHandler implements KeyListener{
-    private static boolean left = false, right = false, down = false;
+    private static boolean left = false, right = false, down = false, space = false;
+    private static boolean spaceDone = false;
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
-        if(code == 37) // left
+        if(code == 32 && spaceDone == false){ // space
+            space = true;
+            spaceDone = false;
+        }
+        else if(code == 37) // left
             left = true;
         else if(code == 39) // right
             right = true;
@@ -484,14 +535,19 @@ class GameKeyHandler implements KeyListener{
         if(code == 37)  left = false;
         if(code == 39)  right = false;
         if(code == 40)  down = false;
+        if(code == 32){  space = false; spaceDone = false;}
     }
     @Override
     public void keyTyped(KeyEvent e) {}
 
     public static String getCurrentKey(){
-        if(left == true)    return "left";
+        if(space == true && spaceDone == false)        return "space";
+        else if(left == true)    return "left";
         else if(right == true) return "right";
         else if(down == true)  return "down";
         else                   return "null";
+    }
+    public static void changeSpaceState(){
+        spaceDone = true;
     }
 }
