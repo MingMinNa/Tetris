@@ -13,8 +13,9 @@ public class HomeScreen {
         HomeKeyHandler.setPanel(background_panel);
         frame.getContentPane().add(background_panel);
         
+        background_panel.requestFocusInWindow();
         while(true){
-
+            
             frame.revalidate();
             frame.repaint();
             if(game_play == true){
@@ -32,7 +33,6 @@ class HomePanel extends JPanel{
         setBackground(Color.BLACK);
         setBounds(0, 0, 800, 800);
         setLayout(null);
-        requestFocusInWindow();
 
         keyboard_description(this);
         game_cover();
@@ -42,8 +42,8 @@ class HomePanel extends JPanel{
                 requestFocusInWindow();
             }
         });
+        
     }
-    
 
     private JLabel labelMake(int center_x, int center_y, String words){
         int words_width = 100, words_height = 30;
