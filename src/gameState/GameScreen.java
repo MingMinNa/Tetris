@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.function.*;
 
 public class GameScreen { 
-    public static int time_ticks = 100;
+    public static int time_ticks = 50;
     public static int key_press = -1;
     public GameScreen(JFrame frame){
         for(int i = 0; i < game_area_cells.length; i ++){
@@ -32,6 +32,7 @@ public class GameScreen {
         frame.getContentPane().add(background_panel);
         background_panel.placePreviewBlock(preview_blocks);
         background_panel.revalidate();
+        background_panel.requestFocusInWindow();
         frame.revalidate();
         frame.repaint();
         new GameTimer().run();
@@ -42,12 +43,13 @@ public class GameScreen {
     class GameTimer{
         static boolean game_over = false;
         public void run() {
-            int count = 0;
+            // count is for auto-fall, count2 is for left, right and down, and the 
+            int count = 0, count2 = 0;
             while(true){
                 long currentTime = System.currentTimeMillis();
                 long deltaTime = currentTime - last_update_time;
                 
-                if(count >= 3){
+                if(count >= 6){
                     // System.out.println("DeltaTime2: " + deltaTime);
                     count = 0;
                     background_panel.cellPositionUpdate(game_area_cells);
@@ -70,6 +72,7 @@ public class GameScreen {
                 }
                 else if(deltaTime >= time_ticks){
                     count++;
+                    count2++;
                     last_update_time = currentTime;
                     if(current_block == null){
                         // System.out.println("Hlleo");
@@ -79,13 +82,13 @@ public class GameScreen {
                     }
                     // keyboard operation
                     String pressed_key = GameKeyHandler.getCurrentKey();
-                    if( pressed_key.equals("left")){
+                    if( pressed_key.equals("left") && count2 >= 2){
                         tryMove("left");
                     }   
-                    else if(pressed_key.equals("right")){
+                    else if(pressed_key.equals("right") && count2 >= 2){
                         tryMove("right");
                     }
-                    else if(pressed_key.equals("down")){
+                    else if(pressed_key.equals("down") && count2 >= 2){
                         count = 0;
                         if(tryMove("down") == false){
                             if(current_cells[3].getY() <= 2){
@@ -97,8 +100,8 @@ public class GameScreen {
                         }
                     }
                     else if(pressed_key.equals("space")){
-                        count = 0;
-                        while(tryMove("down") == true){GameKeyHandler.changeSpaceState();}
+                        count = 0;GameKeyHandler.changeSpaceState();
+                        while(tryMove("down") == true);
                         if(current_cells[3].getY() <= 2){
                             game_over = true;
                             break;
@@ -106,6 +109,12 @@ public class GameScreen {
                         current_block = null;
                         background_panel.gameLineCheck(game_area_cells);
                     }
+                    else if(pressed_key.equals("shift")){
+                        System.out.println("Shift");
+                        GameKeyHandler.changeShiftState();
+                    }
+                    if(count2 >= 2)
+                        count2 = 0;
                     background_panel.cellPositionUpdate(game_area_cells);
                     background_panel.revalidate();
                     frame_temp.revalidate();
@@ -255,6 +264,7 @@ class GamePanel extends JPanel{
         for(String color: colors_arr)
             cell_img.put(color, new ImageIcon("img\\" + color + ".jpg"));
 
+        score = 0;
         setPreferredSize(new Dimension(300, 200));
         setFocusable(true);
         setBackground(Color.BLACK);
@@ -307,7 +317,6 @@ class GamePanel extends JPanel{
         List<Integer> cells_list =  new ArrayList<>();
         for(Cell dominated_cell: current_cells){
             cells_list.add(100 * dominated_cell.getX() + dominated_cell.getY());
-            // System.out.println(100 * dominated_cell.getX() + dominated_cell.getY());
         }
         boolean move = true;
         Map<String,Function<Cell, Boolean>> check_touch_border = new HashMap<>();
@@ -338,70 +347,6 @@ class GamePanel extends JPanel{
         }
         return move;
     }
-    /*
-    public boolean checkMoveDown(Cell [] current_cells,Cell [][] game_area_cells){
-        List<Integer> cells_list =  new ArrayList<>();
-        for(Cell dominated_cell: current_cells){
-            cells_list.add(100 * dominated_cell.getX() + dominated_cell.getY());
-            // System.out.println(100 * dominated_cell.getX() + dominated_cell.getY());
-        }
-        boolean moveDown = true;
-        for(int i = 0; i < 4;i ++){
-            if(current_cells[i].getY() + 1 >= 23){
-                moveDown = false;
-                break;
-            }
-            if(cells_list.contains(100 * (current_cells[i].getX()) + current_cells[i].getY() + 1) == false && 
-                game_area_cells[current_cells[i].getY() + 1][current_cells[i].getX()].getColor().equals("black") == false){
-                moveDown = false;
-                break;
-            }
-        }
-        return moveDown;
-    }
-
-    public boolean checkMoveLeft(Cell [] current_cells,Cell [][] game_area_cells){
-        List<Integer> cells_list =  new ArrayList<>();
-        for(Cell dominated_cell: current_cells){
-            cells_list.add(100 * dominated_cell.getX() + dominated_cell.getY());
-            // System.out.println(100 * dominated_cell.getX() + dominated_cell.getY());
-        }
-        boolean move = true;
-        for(int i = 0; i < 4;i ++){
-            if(current_cells[i].getX() - 1 < 0){
-                move = false;
-                break;
-            }
-            if(cells_list.contains(100 * (current_cells[i].getX() - 1) + current_cells[i].getY()) == false && 
-                game_area_cells[current_cells[i].getY()][current_cells[i].getX() - 1].getColor().equals("black") == false){
-                move = false;
-                break;
-            }
-        }
-        return move;
-    }
-
-    public boolean checkMoveRight(Cell [] current_cells,Cell [][] game_area_cells){
-        List<Integer> cells_list =  new ArrayList<>();
-        for(Cell dominated_cell: current_cells){
-            cells_list.add(100 * dominated_cell.getX() + dominated_cell.getY());
-            // System.out.println(100 * dominated_cell.getX() + dominated_cell.getY());
-        }
-        boolean move = true;
-        for(int i = 0; i < 4;i ++){
-            if(current_cells[i].getX() + 1 >= 10){
-                move = false;
-                break;
-            }
-            if(cells_list.contains(100 * (current_cells[i].getX() + 1) + current_cells[i].getY()) == false && 
-                game_area_cells[current_cells[i].getY()][current_cells[i].getX() + 1].getColor().equals("black") == false){
-                move = false;
-                break;
-            }
-        }
-        return move;
-    }
-    */
 
     /*
      * block_type
@@ -506,21 +451,25 @@ class GamePanel extends JPanel{
         // build the preview border
         buildBorder(preview_area_x_cnt, preview_area_y_cnt, preview_area_x, preview_area_y, false);
     }
-    
+    private int score;
     private static JLabel [][] label_cells = new JLabel[game_area_y_cnt][game_area_x_cnt];
     private static JLabel [][] label_preview = new JLabel[preview_area_y_cnt - 2][preview_area_x_cnt - 2];
 }
 
 
 class GameKeyHandler implements KeyListener{
-    private static boolean left = false, right = false, down = false, space = false;
-    private static boolean spaceDone = false;
+    private static boolean left = false, right = false, down = false, space = false, shift = false;
+    private static boolean space_done = false, shift_done = false;
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
-        if(code == 32 && spaceDone == false){ // space
+        if(code == 32 && space_done == false){ // space
             space = true;
-            spaceDone = false;
+            space_done = false;
+        }
+        else if(code == 16 && shift_done == false){
+            shift = true;
+            shift_done = false;
         }
         else if(code == 37) // left
             left = true;
@@ -535,19 +484,24 @@ class GameKeyHandler implements KeyListener{
         if(code == 37)  left = false;
         if(code == 39)  right = false;
         if(code == 40)  down = false;
-        if(code == 32){  space = false; spaceDone = false;}
+        if(code == 32){  space = false; space_done = false;}
+        if(code == 16){  shift = false; shift_done = false;}
     }
     @Override
     public void keyTyped(KeyEvent e) {}
 
     public static String getCurrentKey(){
-        if(space == true && spaceDone == false)        return "space";
+        if(space == true && space_done == false)        return "space";
+        else if(shift == true && shift_done == false)   return "shift";
         else if(left == true)    return "left";
         else if(right == true) return "right";
         else if(down == true)  return "down";
         else                   return "null";
     }
     public static void changeSpaceState(){
-        spaceDone = true;
+        space_done = true;
+    }
+    public static void changeShiftState(){
+        shift_done = true;
     }
 }
