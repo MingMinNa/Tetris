@@ -83,9 +83,13 @@ class HomePanel extends JPanel{
         right.setForeground(Color.BLACK);
         right.setOpaque(true);
 
-        JLabel shift = labelMake(right_shift_pixel, 620, "Shift");
-        shift.setForeground(Color.BLACK);
-        shift.setOpaque(true);
+        JLabel left_rotate = labelMake(right_shift_pixel - 20, 620, "A", 30, 30);
+        left_rotate.setForeground(Color.BLACK);
+        left_rotate.setOpaque(true);
+
+        JLabel right_rotate = labelMake(right_shift_pixel + 20, 620, "D", 30, 30);
+        right_rotate.setForeground(Color.BLACK);
+        right_rotate.setOpaque(true);
 
         JLabel space_descrip = labelMake(right_shift_pixel + 150, 500, "Hard drop");
         space_descrip.setForeground(Color.WHITE);
@@ -96,16 +100,16 @@ class HomePanel extends JPanel{
         JLabel move_descrip = labelMake(right_shift_pixel + 150, 580, "Move");
         move_descrip.setForeground(Color.WHITE);
 
-        JLabel shift_descrip = labelMake(right_shift_pixel + 150, 620, "Rotate");
-        shift_descrip.setForeground(Color.WHITE);
+        JLabel rotate_descrip = labelMake(right_shift_pixel + 150, 620, "Rotate");
+        rotate_descrip.setForeground(Color.WHITE);
         
         background_panel.add(space);background_panel.add(down);
-        background_panel.add(left);background_panel.add(right);background_panel.add(shift);
+        background_panel.add(left);background_panel.add(right);background_panel.add(left_rotate);background_panel.add(right_rotate);
 
         background_panel.add(space_descrip);
         background_panel.add(down_descrip);
         background_panel.add(move_descrip);
-        background_panel.add(shift_descrip);
+        background_panel.add(rotate_descrip);
     }
     private void game_cover(){
         ImageIcon cover = new ImageIcon("img\\cover.png");

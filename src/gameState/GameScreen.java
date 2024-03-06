@@ -50,12 +50,9 @@ public class GameScreen {
                 long deltaTime = currentTime - last_update_time;
                 
                 if(count >= 6){
-                    // System.out.println("DeltaTime2: " + deltaTime);
                     count = 0;
                     background_panel.cellPositionUpdate(game_area_cells);
         
-                    // System.out.println("Hllefewfweo");
-                    
                     if(tryMove("down") == false){
                         if(current_cells[3].getY() <= 2){
                             game_over = true;
@@ -63,7 +60,7 @@ public class GameScreen {
                         }
                         current_block = null;
                         
-                        background_panel.gameLineCheck(game_area_cells);
+                        gameLineCheck(game_area_cells);
                         background_panel.cellPositionUpdate(game_area_cells);
                     }
                     background_panel.revalidate();
@@ -96,7 +93,7 @@ public class GameScreen {
                                 break;
                             }
                             current_block = null;
-                            background_panel.gameLineCheck(game_area_cells);
+                            gameLineCheck(game_area_cells);
                         }
                     }
                     else if(pressed_key.equals("space")){
@@ -107,12 +104,15 @@ public class GameScreen {
                             break;
                         }
                         current_block = null;
-                        background_panel.gameLineCheck(game_area_cells);
+                        gameLineCheck(game_area_cells);
                     }
-                    else if(pressed_key.equals("shift")){
-                        // System.out.println("Shift");
-                        GameKeyHandler.changeShiftState();
-                        tryRotate();
+                    else if(pressed_key.equals("right rotate")){
+                        GameKeyHandler.changeRightRotateState();
+                        tryRotate("left");
+                    }
+                    else if(pressed_key.equals("left rotate")){
+                        GameKeyHandler.changeLeftRotateState();
+                        tryRotate("right");
                     }
                     if(count2 >= 2)
                         count2 = 0;
@@ -128,7 +128,7 @@ public class GameScreen {
 
         private boolean tryMove(String direction){
             if(direction.equals("down")){
-                if(background_panel.checkMove(current_cells, game_area_cells, direction)){
+                if(checkMove(current_cells, game_area_cells, direction)){
                     for(int i = 0; i < 4; i ++ ){
                         Cell cell = current_cells[i];
                         game_area_cells[cell.getY() + 1][cell.getX()].setColor(cell.getColor());
@@ -141,7 +141,7 @@ public class GameScreen {
                 return false;
             }
             else if(direction == "left"){
-                if(background_panel.checkMove(current_cells, game_area_cells, direction)){
+                if(checkMove(current_cells, game_area_cells, direction)){
                     // System.out.println("Hello");
                     for(int i = 0; i < 4; i ++ ){
                         Cell cell = current_cells[i];
@@ -155,7 +155,7 @@ public class GameScreen {
                 return false;
             }
             else if(direction == "right"){
-                if(background_panel.checkMove(current_cells, game_area_cells, direction)){
+                if(checkMove(current_cells, game_area_cells, direction)){
                     for(int i = 3; i >= 0; i -- ){
                         Cell cell = current_cells[i];
                         game_area_cells[cell.getY()][cell.getX() + 1].setColor(cell.getColor());
@@ -170,10 +170,12 @@ public class GameScreen {
             return false;
         }
 
-        private void tryRotate(){
-            if(background_panel.checkRotate(current_block, current_cells, game_area_cells)){
+        private void tryRotate(String direction){
+            if(checkRotate(current_block, current_cells, game_area_cells, direction)){
                 // System.out.println("Rotatte!!!");
-                int next_state = (current_block.getBlockState() + 1) % 4;
+                int next_state;
+                if(direction.equals("right rotate"))    next_state = (current_block.getBlockState() + 1) % 4;
+                else                                             next_state = (current_block.getBlockState() - 1 + 4) % 4;
                 int block_type = current_block.getBlockType();
                 String block_color = current_block.getColor();
                 int center_x = current_block.getCenterX(), center_y = current_block.getCenterY();
@@ -198,6 +200,70 @@ public class GameScreen {
                 }
                 current_block.nextState();
             }
+        }
+        // merge all the function "checkMoveDown", "checkMoveLeft" and "checkMoveRight"
+        private boolean checkMove(Cell [] current_cells,Cell [][] game_area_cells, String direction){
+            List<Integer> cells_list =  new ArrayList<>();
+            for(Cell dominated_cell: current_cells){
+                cells_list.add(100 * dominated_cell.getX() + dominated_cell.getY());
+            }
+            boolean move = true;
+            Map<String,Function<Cell, Boolean>> check_touch_border = new HashMap<>();
+            check_touch_border.put("down",(x) -> (x.getY() + 1 >= 23));
+            check_touch_border.put("left", (x) -> (x.getX() - 1 < 0));
+            check_touch_border.put("right", (x) -> (x.getX() + 1 >= 10));
+
+            Map<String,Function<Cell,Integer>> get_next_cell_x = new HashMap<>();
+            Map<String,Function<Cell,Integer>> get_next_cell_y = new HashMap<>();
+            get_next_cell_x.put("down", (x)->(x.getX()));
+            get_next_cell_y.put("down", (x)->(x.getY() + 1));
+            
+            get_next_cell_x.put("left", (x)->(x.getX() - 1));
+            get_next_cell_y.put("left", (x)->(x.getY()));
+
+            get_next_cell_x.put("right", (x)->(x.getX() + 1));
+            get_next_cell_y.put("right", (x)->(x.getY()));
+            for(int i = 0; i < 4;i ++){
+                int next_x = get_next_cell_x.get(direction).apply(current_cells[i]);
+                int next_y = get_next_cell_y.get(direction).apply(current_cells[i]);
+                if(check_touch_border.get(direction).apply(current_cells[i])){
+                    move = false;
+                    break;
+                }
+                if(cells_list.contains(100 * next_x + next_y) == false && 
+                    game_area_cells[next_y][next_x].getColor().equals("black") == false){
+                    move = false;
+                    break;
+                }
+            }
+            return move;
+        }
+
+        private boolean checkRotate(GameBlock current_block, Cell [] current_cells, Cell[][] game_area_cells, String direction){
+            int block_type = current_block.getBlockType();
+            int next_state;
+            if(direction.equals("right rotate"))    next_state = (current_block.getBlockState() + 1) % 4;
+            else                                             next_state = (current_block.getBlockState() - 1 + 4) % 4;
+            if(block_type == 1) // O block, rotate operation is useless
+                return false;
+            List<Integer> current_cells_pos = new ArrayList<>();
+            for(int i = 0; i < 4; i++){
+                // 100 * x + y
+                current_cells_pos.add(100 * current_cells[i].getX() + current_cells[i].getY());
+            }
+            boolean rotate = true;
+            int center_x = current_block.getCenterX(), center_y = current_block.getCenterY();
+            for(int i = 0; i < 4; i++){
+                int next_x = center_x + GameBlock.block_dist[block_type][next_state][i][1];
+                int next_y = center_y + GameBlock.block_dist[block_type][next_state][i][0];
+                if(next_x < 0 || next_x >= GamePanel.game_area_x_cnt || next_y < 0 || next_y >= GamePanel.game_area_y_cnt){
+                    rotate = false;break;
+                }
+                if(current_cells_pos.contains(100 * (next_x) + next_y) == false && game_area_cells[next_y][next_x].getColor().equals("black") == false){
+                    rotate = false;break;
+                }
+            }
+            return rotate;
         }
     }
 
@@ -280,6 +346,22 @@ public class GameScreen {
         
         return;
     }
+    private void gameLineCheck(Cell [][] game_area_cells){
+        int del_line = 0;
+        for(int i = game_area_cells.length - 1; i > 1; i--){
+            boolean all_filled = true;
+            for(int j = 0; j < game_area_cells[0].length; j++){
+                if(game_area_cells[i][j].getColor().equals("black")){all_filled = false; break;}
+            }
+            if(all_filled == false){
+                for(int j = 0; j < game_area_cells[0].length; j++)
+                    game_area_cells[i + del_line][j].setColor(game_area_cells[i][j].getColor());
+            }
+            else
+                del_line++;
+        }
+    }
+
 }
 
 class GamePanel extends JPanel{
@@ -315,23 +397,6 @@ class GamePanel extends JPanel{
             }
         });
     }
-    
-
-    public void gameLineCheck(Cell [][] game_area_cells){
-        int del_line = 0;
-        for(int i = game_area_cells.length - 1; i > 1; i--){
-            boolean all_filled = true;
-            for(int j = 0; j < game_area_cells[0].length; j++){
-                if(game_area_cells[i][j].getColor().equals("black")){all_filled = false; break;}
-            }
-            if(all_filled == false){
-                for(int j = 0; j < game_area_cells[0].length; j++)
-                    game_area_cells[i + del_line][j].setColor(game_area_cells[i][j].getColor());
-            }
-            else
-                del_line++;
-        }
-    }
     public void cellPositionUpdate(Cell [][] game_area_cells){
         for(int i = 0; i < game_area_y_cnt; i++){
             for(int j = 0; j < game_area_x_cnt; j++){
@@ -348,68 +413,6 @@ class GamePanel extends JPanel{
         }
     }
 
-    // merge all the function "checkMoveDown", "checkMoveLeft" and "checkMoveRight"
-    public boolean checkMove(Cell [] current_cells,Cell [][] game_area_cells, String direction){
-        List<Integer> cells_list =  new ArrayList<>();
-        for(Cell dominated_cell: current_cells){
-            cells_list.add(100 * dominated_cell.getX() + dominated_cell.getY());
-        }
-        boolean move = true;
-        Map<String,Function<Cell, Boolean>> check_touch_border = new HashMap<>();
-        check_touch_border.put("down",(x) -> (x.getY() + 1 >= 23));
-        check_touch_border.put("left", (x) -> (x.getX() - 1 < 0));
-        check_touch_border.put("right", (x) -> (x.getX() + 1 >= 10));
-
-        Map<String,Function<Cell,Integer>> get_next_cell_x = new HashMap<>();
-        Map<String,Function<Cell,Integer>> get_next_cell_y = new HashMap<>();
-        get_next_cell_x.put("down", (x)->(x.getX()));
-        get_next_cell_y.put("down", (x)->(x.getY() + 1));
-        
-        get_next_cell_x.put("left", (x)->(x.getX() - 1));
-        get_next_cell_y.put("left", (x)->(x.getY()));
-
-        get_next_cell_x.put("right", (x)->(x.getX() + 1));
-        get_next_cell_y.put("right", (x)->(x.getY()));
-        for(int i = 0; i < 4;i ++){
-            int next_x = get_next_cell_x.get(direction).apply(current_cells[i]);
-            int next_y = get_next_cell_y.get(direction).apply(current_cells[i]);
-            if(check_touch_border.get(direction).apply(current_cells[i])){
-                move = false;
-                break;
-            }
-            if(cells_list.contains(100 * next_x + next_y) == false && 
-                game_area_cells[next_y][next_x].getColor().equals("black") == false){
-                move = false;
-                break;
-            }
-        }
-        return move;
-    }
-
-    public boolean checkRotate(GameBlock current_block, Cell [] current_cells, Cell[][] game_area_cells){
-        int block_type = current_block.getBlockType();
-        int next_state = (current_block.getBlockState() + 1) % 4;
-        if(block_type == 1) // O block, rotate operation is useless
-            return false;
-        List<Integer> current_cells_pos = new ArrayList<>();
-        for(int i = 0; i < 4; i++){
-            // 100 * x + y
-            current_cells_pos.add(100 * current_cells[i].getX() + current_cells[i].getY());
-        }
-        boolean rotate = true;
-        int center_x = current_block.getCenterX(), center_y = current_block.getCenterY();
-        for(int i = 0; i < 4; i++){
-            int next_x = center_x + GameBlock.block_dist[block_type][next_state][i][1];
-            int next_y = center_y + GameBlock.block_dist[block_type][next_state][i][0];
-            if(next_x < 0 || next_x >= game_area_x_cnt || next_y < 0 || next_y >= game_area_y_cnt){
-                rotate = false;break;
-            }
-            if(current_cells_pos.contains(100 * (next_x) + next_y) == false && game_area_cells[next_y][next_x].getColor().equals("black") == false){
-                rotate = false;break;
-            }
-        }
-        return rotate;
-    }
     /*
      * block_type
      * 0: I block
@@ -472,6 +475,9 @@ class GamePanel extends JPanel{
         this.revalidate();
     }
 
+
+    public int getScore(){return score;}
+    public void setScore(int new_score){score = new_score;}
     // --------------------------------------
     private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height){
         JLabel label = new JLabel(words);
@@ -520,8 +526,8 @@ class GamePanel extends JPanel{
 
 
 class GameKeyHandler implements KeyListener{
-    private static boolean left = false, right = false, down = false, space = false, shift = false;
-    private static boolean space_done = false, shift_done = false;
+    private static boolean left = false, right = false, down = false, space = false, left_rotate = false, right_rotate = false;
+    private static boolean space_done = false, left_rotate_done = false, right_rotate_done;
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
@@ -529,9 +535,13 @@ class GameKeyHandler implements KeyListener{
             space = true;
             space_done = false;
         }
-        else if(code == 16 && shift_done == false){
-            shift = true;
-            shift_done = false;
+        else if(code == 65 && left_rotate_done == false){ // A is left rotate
+            left_rotate = true;
+            left_rotate_done = false;
+        }
+        else if(code == 68 && right_rotate_done == false){ // D is right rotate 
+            right_rotate = true;
+            right_rotate_done = false;
         }
         else if(code == 37) // left
             left = true;
@@ -547,14 +557,16 @@ class GameKeyHandler implements KeyListener{
         if(code == 39)  right = false;
         if(code == 40)  down = false;
         if(code == 32){  space = false; space_done = false;}
-        if(code == 16){  shift = false; shift_done = false;}
+        if(code == 65){  left_rotate = false; left_rotate_done = false;}
+        if(code == 68){  right_rotate = false; right_rotate_done = false;}
     }
     @Override
     public void keyTyped(KeyEvent e) {}
 
     public static String getCurrentKey(){
         if(space == true && space_done == false)        return "space";
-        else if(shift == true && shift_done == false)   return "shift";
+        else if(right_rotate == true && right_rotate_done == false)   return "right rotate";
+        else if(left_rotate == true && left_rotate_done == false)   return "left rotate";
         else if(left == true)    return "left";
         else if(right == true) return "right";
         else if(down == true)  return "down";
@@ -563,7 +575,10 @@ class GameKeyHandler implements KeyListener{
     public static void changeSpaceState(){
         space_done = true;
     }
-    public static void changeShiftState(){
-        shift_done = true;
+    public static void changeLeftRotateState(){
+        left_rotate_done = true;
+    }
+    public static void changeRightRotateState(){
+        right_rotate_done = true;
     }
 }
