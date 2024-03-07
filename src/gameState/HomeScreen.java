@@ -23,6 +23,8 @@ public class HomeScreen {
                 break;
             }
         }
+        // reset the setting for next loop
+        game_play = false;
     }
 }
 class HomePanel extends JPanel{
@@ -66,41 +68,42 @@ class HomePanel extends JPanel{
     }
     private void keyboard_description(HomePanel background_panel){
         // Describe "How to play"
-        int right_shift_pixel = 350;
-        JLabel space = labelMake(right_shift_pixel, 500, "Space");
+        int x_start = 350;
+        int y_start = 500;
+        JLabel space = labelMake(x_start, y_start, "Space");
         space.setForeground(Color.BLACK);
         space.setOpaque(true);
 
-        JLabel down = labelMake(right_shift_pixel, 540, "↓", 30, 30);
+        JLabel down = labelMake(x_start, y_start + 40, "↓", 30, 30);
         down.setForeground(Color.BLACK);
         down.setOpaque(true);
 
-        JLabel left = labelMake(right_shift_pixel - 20, 580, "←", 30, 30);
+        JLabel left = labelMake(x_start - 20, y_start + 40 * 2, "←", 30, 30);
         left.setForeground(Color.BLACK);
         left.setOpaque(true);
 
-        JLabel right = labelMake(right_shift_pixel + 20, 580, "→", 30, 30);
+        JLabel right = labelMake(x_start + 20, y_start + 40 * 2, "→", 30, 30);
         right.setForeground(Color.BLACK);
         right.setOpaque(true);
 
-        JLabel left_rotate = labelMake(right_shift_pixel - 20, 620, "A", 30, 30);
+        JLabel left_rotate = labelMake(x_start - 20, y_start + 40 * 3, "A", 30, 30);
         left_rotate.setForeground(Color.BLACK);
         left_rotate.setOpaque(true);
 
-        JLabel right_rotate = labelMake(right_shift_pixel + 20, 620, "D", 30, 30);
+        JLabel right_rotate = labelMake(x_start + 20, y_start + 40 * 3, "D", 30, 30);
         right_rotate.setForeground(Color.BLACK);
         right_rotate.setOpaque(true);
 
-        JLabel space_descrip = labelMake(right_shift_pixel + 150, 500, "Hard drop");
+        JLabel space_descrip = labelMake(x_start + 150, y_start, "Hard drop");
         space_descrip.setForeground(Color.WHITE);
 
-        JLabel down_descrip = labelMake(right_shift_pixel + 150, 540, "Soft drop");
+        JLabel down_descrip = labelMake(x_start + 150, y_start + 40 * 1, "Soft drop");
         down_descrip.setForeground(Color.WHITE);
 
-        JLabel move_descrip = labelMake(right_shift_pixel + 150, 580, "Move");
+        JLabel move_descrip = labelMake(x_start + 150, y_start + 40 * 2, "Move");
         move_descrip.setForeground(Color.WHITE);
 
-        JLabel rotate_descrip = labelMake(right_shift_pixel + 150, 620, "Rotate");
+        JLabel rotate_descrip = labelMake(x_start + 150, y_start + 40 * 3, "Rotate");
         rotate_descrip.setForeground(Color.WHITE);
         
         background_panel.add(space);background_panel.add(down);

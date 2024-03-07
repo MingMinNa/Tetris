@@ -27,7 +27,6 @@ public class GameScreen {
             Random rnd = new Random();
             preview_blocks[i] = new GameBlock(rnd.nextInt(7), rnd.nextInt(7));
         }
-        frame_temp = frame;
         background_panel = new GamePanel();
         frame.getContentPane().add(background_panel);
         background_panel.placePreviewBlock(preview_blocks);
@@ -35,14 +34,14 @@ public class GameScreen {
         background_panel.requestFocusInWindow();
         frame.revalidate();
         frame.repaint();
-        new GameTimer().run();
+        new GameTimer().run(frame);
 
         // Game Over
     }
 
     class GameTimer{
         static boolean game_over = false;
-        public void run() {
+        public void run(JFrame frame) {
             // count is for auto-fall, count2 is for left, right and down, and the 
             int count = 0, count2 = 0;
             while(true){
@@ -64,8 +63,8 @@ public class GameScreen {
                         background_panel.cellPositionUpdate(game_area_cells);
                     }
                     background_panel.revalidate();
-                    frame_temp.revalidate();
-                    frame_temp.repaint();
+                    frame.revalidate();
+                    frame.repaint();
                 }
                 else if(deltaTime >= time_ticks){
                     count++;
@@ -118,12 +117,18 @@ public class GameScreen {
                         count2 = 0;
                     background_panel.cellPositionUpdate(game_area_cells);
                     background_panel.revalidate();
-                    frame_temp.revalidate();
-                    frame_temp.repaint();
+                    frame.revalidate();
+                    frame.repaint();
                 }
 
                 if(game_over == true)    break;
             }
+
+            // reset the setting for next loop game;
+            game_over = false;
+            GameKeyHandler.resetSetting();
+            // Remove all the components in the GameScreen
+            removePanel(frame);
         }
 
         private boolean tryMove(String direction){
@@ -183,8 +188,8 @@ public class GameScreen {
                 for(int i = 0; i < 4;i++)
                     game_area_cells[current_cells[i].getY()][current_cells[i].getX()].setColor("black");
                 for(int i = 0; i < 4;i++){
-                    int next_x = center_x + GameBlock.block_dist[block_type][next_state][i][1];
-                    int next_y = center_y + GameBlock.block_dist[block_type][next_state][i][0];
+                    int next_x = center_x + GameBlock.BLOCK_DIST[block_type][next_state][i][1];
+                    int next_y = center_y + GameBlock.BLOCK_DIST[block_type][next_state][i][0];
                     current_cells[i] = game_area_cells[next_y][next_x];
                     current_cells[i].setColor(block_color);
                 }
@@ -238,7 +243,6 @@ public class GameScreen {
             }
             return move;
         }
-
         private boolean checkRotate(GameBlock current_block, Cell [] current_cells, Cell[][] game_area_cells, String direction){
             int block_type = current_block.getBlockType();
             int next_state;
@@ -254,9 +258,9 @@ public class GameScreen {
             boolean rotate = true;
             int center_x = current_block.getCenterX(), center_y = current_block.getCenterY();
             for(int i = 0; i < 4; i++){
-                int next_x = center_x + GameBlock.block_dist[block_type][next_state][i][1];
-                int next_y = center_y + GameBlock.block_dist[block_type][next_state][i][0];
-                if(next_x < 0 || next_x >= GamePanel.game_area_x_cnt || next_y < 0 || next_y >= GamePanel.game_area_y_cnt){
+                int next_x = center_x + GameBlock.BLOCK_DIST[block_type][next_state][i][1];
+                int next_y = center_y + GameBlock.BLOCK_DIST[block_type][next_state][i][0];
+                if(next_x < 0 || next_x >= GamePanel.GAME_AREA_X_CNT || next_y < 0 || next_y >= GamePanel.GAME_AREA_Y_CNT){
                     rotate = false;break;
                 }
                 if(current_cells_pos.contains(100 * (next_x) + next_y) == false && game_area_cells[next_y][next_x].getColor().equals("black") == false){
@@ -270,7 +274,6 @@ public class GameScreen {
     // ----------------------------------------
     private long last_update_time = System.currentTimeMillis();
     private GamePanel background_panel;
-    private JFrame frame_temp;
 
     private Cell [][] game_area_cells = new Cell[23][10]; // 3, 20 
     private GameBlock [] preview_blocks = new GameBlock[2];
@@ -361,15 +364,21 @@ public class GameScreen {
                 del_line++;
         }
     }
-
+    private void removePanel(JFrame frame){
+        background_panel.removeAll();
+        background_panel.revalidate();
+        frame.remove(background_panel);
+        frame.revalidate();
+        frame.repaint();
+    }
 }
 
 class GamePanel extends JPanel{
-    public static final int game_area_x_cnt = 10, game_area_y_cnt = 20;
-    public static final int preview_area_x_cnt = 8, preview_area_y_cnt = 12;
-    public static final int x_start = 130, y_start = 60;
-    public static final int preview_area_x = x_start + 1 + 400, preview_area_y = y_start + 1 + 200; 
-    public static final int game_area_x = x_start + 1, game_area_y = y_start + 1;
+    public static final int GAME_AREA_X_CNT = 10, GAME_AREA_Y_CNT = 20;
+    public static final int PREVIEW_AREA_X_CNT = 8, PREVIEW_AREA_Y_CNT = 12;
+    public static final int X_START = 130, Y_START = 60;
+    public static final int PREVIEW_AREA_X = X_START + 1 + 400, PREVIEW_AREA_Y = Y_START + 1 + 200; 
+    public static final int GAME_AREA_X = X_START + 1, GAME_AREA_Y = Y_START + 1;
     public static Map<String,ImageIcon> cell_img = new HashMap<>();
 
 
@@ -398,8 +407,8 @@ class GamePanel extends JPanel{
         });
     }
     public void cellPositionUpdate(Cell [][] game_area_cells){
-        for(int i = 0; i < game_area_y_cnt; i++){
-            for(int j = 0; j < game_area_x_cnt; j++){
+        for(int i = 0; i < GAME_AREA_Y_CNT; i++){
+            for(int j = 0; j < GAME_AREA_X_CNT; j++){
                 // System.out.println(game_area_cells[i][j].getColor());
                 if (game_area_cells[i + 3][j].getColor().equals("black")){
                     label_cells[i][j].setVisible(false);
@@ -494,17 +503,17 @@ class GamePanel extends JPanel{
             for(int j = 0;j < x_cnt; j++){
                 if(i == 0 || i == y_cnt - 1 || j == 0 || j == x_cnt - 1){
                     
-                    JLabel borderLabel = labelMake(x_init + Cell.block_width * j , y_init + Cell.block_height * i , "", Cell.block_width - 3, Cell.block_height - 3);
+                    JLabel borderLabel = labelMake(x_init + Cell.BLOCK_WIDTH * j , y_init + Cell.BLOCK_HEIGHT * i , "", Cell.BLOCK_WIDTH - 3, Cell.BLOCK_HEIGHT - 3);
                     borderLabel.setIcon(cell_img.get("gray"));
                     this.add(borderLabel);
                 }
                 else if(preview_or_game == true){
-                    label_cells[i - 1][j - 1] = labelMake(x_start + Cell.block_width * j + 1,y_start + Cell.block_height * i + 1,"", Cell.block_width - 3, Cell.block_height - 3);
+                    label_cells[i - 1][j - 1] = labelMake(X_START + Cell.BLOCK_WIDTH * j + 1,Y_START + Cell.BLOCK_HEIGHT * i + 1,"", Cell.BLOCK_WIDTH - 3, Cell.BLOCK_HEIGHT - 3);
                     label_cells[i - 1][j - 1].setVisible(false);
                     this.add(label_cells[i - 1][j - 1]);
                 }
                 else{
-                    JLabel innerLabel = labelMake(x_init + Cell.block_width * j , y_init + Cell.block_height * i , "", Cell.block_width - 3, Cell.block_height - 3);
+                    JLabel innerLabel = labelMake(x_init + Cell.BLOCK_WIDTH * j , y_init + Cell.BLOCK_HEIGHT * i , "", Cell.BLOCK_WIDTH - 3, Cell.BLOCK_HEIGHT - 3);
                     label_preview[i - 1][j - 1] = innerLabel;
                     innerLabel.setVisible(false);
                     this.add(label_preview[i - 1][j - 1]);
@@ -513,15 +522,15 @@ class GamePanel extends JPanel{
         }
     }
     private void buildBoard(){
-        // build the game area border, Note: game_area_x_cnt and game_area_y_cnt is public static variable
+        // build the game area border, Note: GAME_AREA_X_CNT and GAME_AREA_Y_CNT is public static variable
         // true: game, false: preview
-        buildBorder(game_area_x_cnt + 2, game_area_y_cnt + 2, game_area_x, game_area_y, true);
+        buildBorder(GAME_AREA_X_CNT + 2, GAME_AREA_Y_CNT + 2, GAME_AREA_X, GAME_AREA_Y, true);
         // build the preview border
-        buildBorder(preview_area_x_cnt, preview_area_y_cnt, preview_area_x, preview_area_y, false);
+        buildBorder(PREVIEW_AREA_X_CNT, PREVIEW_AREA_Y_CNT, PREVIEW_AREA_X, PREVIEW_AREA_Y, false);
     }
     private int score;
-    private static JLabel [][] label_cells = new JLabel[game_area_y_cnt][game_area_x_cnt];
-    private static JLabel [][] label_preview = new JLabel[preview_area_y_cnt - 2][preview_area_x_cnt - 2];
+    private static JLabel [][] label_cells = new JLabel[GAME_AREA_Y_CNT][GAME_AREA_X_CNT];
+    private static JLabel [][] label_preview = new JLabel[PREVIEW_AREA_Y_CNT - 2][PREVIEW_AREA_X_CNT - 2];
 }
 
 
@@ -580,5 +589,10 @@ class GameKeyHandler implements KeyListener{
     }
     public static void changeRightRotateState(){
         right_rotate_done = true;
+    }
+
+    public static void resetSetting(){
+        left = right = down = space = left_rotate = right_rotate = false;
+        space_done = left_rotate_done = right_rotate_done = false;
     }
 }
