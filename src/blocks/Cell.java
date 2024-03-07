@@ -1,8 +1,8 @@
 package blocks;
 
 public class Cell {
-    public static final int block_width = 30; 
-    public static final int block_height = 30;
+    public static final int BLOCK_WIDTH = 30; 
+    public static final int BLOCK_HEIGHT = 30;
     public Cell(){}
     public Cell(int index_x, int index_y,String color){
         block_x_index = index_x;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameBlock {
-    public static List<String> color_list =  new ArrayList<>(){{
+    public static final List<String> COLOR_LIST =  new ArrayList<>(){{
         add("blue");
         add( "green");
         add("lightblue");
@@ -15,7 +15,7 @@ public class GameBlock {
         add("gray");
     }};
     // block_type(0 ~ 6), block_state(0 ~ 3), block_cell_from_center_cell(0 ~ 3), cell_y and cell_x(0 - 1)
-    public static int [][][][] block_dist = {
+    public static final int [][][][] BLOCK_DIST = {
         {{{0, -1}, {0, 0}, {0, 1}, {0, 2}}, {{-1, 0}, {0, 0}, {1, 0}, {2, 0}}, {{0, -2}, {0, -1}, {0, 0}, {0, 1}}, {{-2, 0}, {-1, 0}, {0, 0}, {1, 0}}},
         {{{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}},
         {{{0, -1}, {0, 0}, {-1, 0}, {-1, 1}}, {{0, 0}, {-1, 0}, {0, 1}, {1, 1}}, {{1, -1}, {1, 0}, {0, 0}, {0, 1}}, {{-1, -1}, {0, -1}, {0, 0}, {1, 0}}},
@@ -24,6 +24,7 @@ public class GameBlock {
         {{{0, 0}, {0, -1}, {0, 1}, {-1, 1}}, {{0, 0}, {-1, 0}, {1, 0}, {1, 1}}, {{0, 0}, {0, -1}, {0, 1}, {1, -1}}, {{0, 0}, {-1, 0}, {1, 0}, {-1, -1}}},
         {{{0, 0}, {0, -1}, {0, 1}, {-1, 0}}, {{0, 0}, {-1, 0}, {1, 0}, {0, 1}}, {{0, 0}, {0, -1}, {0, 1}, {1, 0}}, {{0, 0}, {-1, 0}, {1, 0}, {0, -1}}}
     };
+    // Constructor overloading
     public GameBlock(int center_x_idx, int center_y_idx, int type, String color_str){
         for_preview = true;
         this.block_center_x = center_x_idx;
@@ -45,12 +46,12 @@ public class GameBlock {
     
     public String getColor(){return color;}
     public void setColor(int color_idx){
-        if(color_idx < color_list.size())
-            color = color_list.get(color_idx);
+        if(color_idx < COLOR_LIST.size())
+            color = COLOR_LIST.get(color_idx);
         return;
     }
     public void setColor(String colorStr){
-        if(color_list.contains(colorStr)){
+        if(COLOR_LIST.contains(colorStr)){
             color = colorStr;
         }
         return;
