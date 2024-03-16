@@ -2,13 +2,22 @@ package gameState;
 
 
 import javax.swing.*;
+
+import Music.MusicPlayer;
+
 import java.awt.*;
 import java.awt.event.*;
+
+import Music.MusicPlayer;
 
 public class HomeScreen {
     public static boolean game_play = false; 
     public static int time_ticks = 60;
     public HomeScreen(JFrame frame){
+
+        // MusicPlayer musicPlayer = new MusicPlayer("HomeScreen", true);
+        // musicPlayer.start();
+        
         HomePanel background_panel = new HomePanel();
         HomeKeyHandler.setPanel(background_panel);
         frame.getContentPane().add(background_panel);
@@ -25,11 +34,11 @@ public class HomeScreen {
         }
         // reset the setting for next loop
         game_play = false;
+        // musicPlayer.stopPlaying();
     }
 }
 class HomePanel extends JPanel{
     public HomePanel() {
-
         setPreferredSize(new Dimension(300, 200));
         setFocusable(true);
         setBackground(Color.BLACK);

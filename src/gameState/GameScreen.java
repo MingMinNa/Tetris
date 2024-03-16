@@ -2,6 +2,9 @@ package gameState;
 
 
 import javax.swing.*;
+
+import Music.MusicPlayer;
+
 import java.awt.*;
 import java.awt.event.*;
 import blocks.*;
@@ -36,15 +39,23 @@ public class GameScreen {
         frame.repaint();
         new GameTimer().run(frame);
 
-        // Game Over
     }
 
     class GameTimer{
         static boolean game_over = false;
         public void run(JFrame frame) {
+            MusicPlayer musicPlayer = new MusicPlayer("GameState1", true);
+            musicPlayer.start();
+            int current_state = 1;
             // count is for auto-fall, count2 is for left, right and down, and the 
             int count = 0, count2 = 0;
             while(true){
+                if(background_panel.getScore() >= 1000 && current_state == 1){
+                    musicPlayer.stopPlaying();
+                    current_state = 2;
+                    musicPlayer = new MusicPlayer("GameState2", true);
+                    musicPlayer.start();
+                }
                 long currentTime = System.currentTimeMillis();
                 long deltaTime = currentTime - last_update_time;
                 
@@ -123,7 +134,7 @@ public class GameScreen {
 
                 if(game_over == true)    break;
             }
-
+            musicPlayer.stopPlaying();
             // reset the setting for next loop game;
             game_over = false;
             GameKeyHandler.resetSetting();
@@ -363,6 +374,15 @@ public class GameScreen {
             else
                 del_line++;
         }
+        int current_score = background_panel.getScore();
+        switch(del_line){
+            case 4: background_panel.setScore(current_score + 700);break;
+            case 3: background_panel.setScore(current_score + 500);break;
+            case 2: background_panel.setScore(current_score + 300);break;
+            case 1: background_panel.setScore(current_score + 100);break;
+            default:
+                break;
+        }
     }
     private void removePanel(JFrame frame){
         background_panel.removeAll();
@@ -379,13 +399,13 @@ class GamePanel extends JPanel{
     public static final int X_START = 130, Y_START = 60;
     public static final int PREVIEW_AREA_X = X_START + 1 + 400, PREVIEW_AREA_Y = Y_START + 1 + 200; 
     public static final int GAME_AREA_X = X_START + 1, GAME_AREA_Y = Y_START + 1;
+
     public static Map<String,ImageIcon> cell_img = new HashMap<>();
 
 
     
     public static JLabel [][] getLabelPreview(){return label_preview;}
     public GamePanel() {
-
         // load all color cell into the cell_img map
         String [] colors_arr = {"red", "blue", "gray", "green", "lightblue", "orange", "purple", "yellow"};
         for(String color: colors_arr)
@@ -486,13 +506,25 @@ class GamePanel extends JPanel{
 
 
     public int getScore(){return score;}
-    public void setScore(int new_score){score = new_score;}
+    public void setScore(int new_score){
+        score = new_score;
+        if(label_score != null)
+            this.remove(label_score);
+        int score_x = PREVIEW_AREA_X + (PREVIEW_AREA_X_CNT / 2 - 1) * Cell.BLOCK_WIDTH + PREVIEW_AREA_X_CNT, 
+            score_y = 120;
+        label_score = labelMake(score_x, score_y, Integer.toString(score),120, 60, 40);
+        label_score.setForeground(Color.WHITE);
+        this.add(label_score);
+    }
     // --------------------------------------
     private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height){
+        return labelMake(center_x, center_y, words, words_width, words_height, 20);
+    }
+    private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height, int font_size){
         JLabel label = new JLabel(words);
         label.setBounds(center_x - words_width/2 , center_y - words_height/2, words_width, words_height);
         
-        label.setFont(new Font("Arial", Font.BOLD, 20));
+        label.setFont(new Font("Arial", Font.BOLD, font_size));
         label.setHorizontalAlignment(JLabel.CENTER);
         label.setVerticalAlignment(JLabel.CENTER);
         return label;
@@ -521,14 +553,26 @@ class GamePanel extends JPanel{
             }
         }
     }
+    private void buildScore(int score_title_x, int score_title_y){
+        JLabel score_title = labelMake(score_title_x, score_title_y, "Score", 120, 60, 40);
+        score_title.setForeground(Color.WHITE); 
+        this.add(score_title);
+
+    }
+    
     private void buildBoard(){
         // build the game area border, Note: GAME_AREA_X_CNT and GAME_AREA_Y_CNT is public static variable
         // true: game, false: preview
         buildBorder(GAME_AREA_X_CNT + 2, GAME_AREA_Y_CNT + 2, GAME_AREA_X, GAME_AREA_Y, true);
         // build the preview border
         buildBorder(PREVIEW_AREA_X_CNT, PREVIEW_AREA_Y_CNT, PREVIEW_AREA_X, PREVIEW_AREA_Y, false);
+        int score_title_x = PREVIEW_AREA_X + (PREVIEW_AREA_X_CNT / 2 - 1) * Cell.BLOCK_WIDTH + PREVIEW_AREA_X_CNT, 
+            score_title_y = 60;
+        buildScore(score_title_x, score_title_y);
+        setScore(0);
     }
     private int score;
+    private static JLabel label_score = null;
     private static JLabel [][] label_cells = new JLabel[GAME_AREA_Y_CNT][GAME_AREA_X_CNT];
     private static JLabel [][] label_preview = new JLabel[PREVIEW_AREA_Y_CNT - 2][PREVIEW_AREA_X_CNT - 2];
 }
