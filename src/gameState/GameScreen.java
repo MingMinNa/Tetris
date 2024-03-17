@@ -2,6 +2,7 @@ package gameState;
 
 
 import javax.swing.*;
+import javax.swing.plaf.TreeUI;
 
 import Music.MusicPlayer;
 
@@ -20,6 +21,8 @@ import java.util.function.*;
 public class GameScreen { 
     public static int time_ticks = 50;
     public static int key_press = -1;
+    public static int GAME_STATE_SCORE[] = {0, 400, 1000, -1}; // the score required into the next state
+
     public GameScreen(JFrame frame){
         for(int i = 0; i < game_area_cells.length; i ++){
             for(int j = 0; j < game_area_cells[0].length; j ++){
@@ -44,17 +47,14 @@ public class GameScreen {
     class GameTimer{
         static boolean game_over = false;
         public void run(JFrame frame) {
-            MusicPlayer musicPlayer = new MusicPlayer("GameState1", true);
-            musicPlayer.start();
-            int current_state = 1;
+            MusicPlayer music_player = null;
             // count is for auto-fall, count2 is for left, right and down, and the 
             int count = 0, count2 = 0;
             while(true){
-                if(background_panel.getScore() >= 1000 && current_state == 1){
-                    musicPlayer.stopPlaying();
-                    current_state = 2;
-                    musicPlayer = new MusicPlayer("GameState2", true);
-                    musicPlayer.start();
+                if(checkNextGameState()){
+                    if(music_player != null){music_player.stopPlaying();}
+                    music_player = new MusicPlayer("GameState" + Integer.toString(current_state), true);
+                    music_player.start();
                 }
                 long currentTime = System.currentTimeMillis();
                 long deltaTime = currentTime - last_update_time;
@@ -134,7 +134,8 @@ public class GameScreen {
 
                 if(game_over == true)    break;
             }
-            musicPlayer.stopPlaying();
+            if(music_player != null)
+                music_player.stopPlaying();
             // reset the setting for next loop game;
             game_over = false;
             GameKeyHandler.resetSetting();
@@ -291,6 +292,15 @@ public class GameScreen {
     private GameBlock current_block = null;
     private Cell [] current_cells =  new Cell[4];
 
+    private int current_state = 0; 
+
+    private boolean checkNextGameState(){
+        if(GAME_STATE_SCORE[current_state] >= 0 && background_panel.getScore() >= GAME_STATE_SCORE[current_state]){
+            current_state = current_state + 1;
+            return true;
+        }
+        return false;
+    }
     private void currentBlockUpdate(){
         int block_type = preview_blocks[0].getBlockType();
         String block_color = preview_blocks[0].getColor();

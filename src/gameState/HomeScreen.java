@@ -1,14 +1,10 @@
 package gameState;
 
-
 import javax.swing.*;
-
-import Music.MusicPlayer;
 
 import java.awt.*;
 import java.awt.event.*;
 
-import Music.MusicPlayer;
 
 public class HomeScreen {
     public static boolean game_play = false; 
