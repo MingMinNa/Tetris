@@ -2,7 +2,6 @@ package gameState;
 
 
 import javax.swing.*;
-import javax.swing.plaf.TreeUI;
 
 import Music.MusicPlayer;
 
@@ -513,18 +512,112 @@ class GamePanel extends JPanel{
         }
         this.revalidate();
     }
-
+    
+    private void scoreDisplayUpdate(){
+        // refresh
+        int score_height_cnt = 5, score_witdh_cnt = 15;
+        for(int i = 0; i < score_height_cnt;i ++){
+            for(int j = 0; j < score_witdh_cnt;j ++){
+                label_score_display[i][j].setVisible(false);
+            }
+        }
+        /* (0)
+         *  x x x 
+         *  x o x
+         *  x o x
+         *  x o x
+         *  x x x
+         * (1)
+         *  o x o 
+         *  x x o
+         *  o x o
+         *  o x o
+         *  x x x
+         * (2)
+         *  x x x 
+         *  o o x
+         *  x x x
+         *  x o o
+         *  x x x
+         * (3)
+         *  x x x 
+         *  o o x
+         *  x x x
+         *  o o x
+         *  x x x
+         * (4)
+         *  x o x 
+         *  x o x
+         *  x x x
+         *  o o x
+         *  o o x
+         * (5)
+         *  x x x 
+         *  x o o
+         *  x x x
+         *  o o x
+         *  x x x
+         * (6)
+         *  x x x 
+         *  x o o
+         *  x x x
+         *  x o x
+         *  x x x
+         * (7)
+         *  x x x 
+         *  x o x
+         *  x o x
+         *  o o x
+         *  o o x
+         * (8)
+         *  x x x 
+         *  x o x
+         *  x x x
+         *  x o x
+         *  x x x
+         * (9)
+         *  x x x 
+         *  x o x
+         *  x x x
+         *  o o x
+         *  x x x
+         */
+        String [] relative_position = {
+            "xxxxoxxoxxoxxxx",
+            "oxoxxooxooxoxxx",
+            "xxxooxxxxxooxxx",
+            "xxxooxxxxooxxxx",
+            "xoxxoxxxxooxoox",
+            "xxxxooxxxooxxxx",
+            "xxxxooxxxxoxxxx",
+            "xxxxoxxoxooxoox",
+            "xxxxoxxxxxoxxxx",
+            "xxxxoxxxxooxxxx"
+        };
+        // current digit have 5 , and the number from 0 to 99999 can be represented.
+        for(int i = 0;i < 5;i ++){
+            int score_digit_x = i * 3, score_digit_y = 0;
+            int digit = (score / (int)Math.pow(10, 5 - i - 1)) % 10;
+            for(int j = 0; j < 15; j++){
+                if(relative_position[digit].charAt(j) == 'o')   continue;
+                int score_cell_x = score_digit_x + j % 3, score_cell_y = score_digit_y + j / 3;
+                label_score_display[score_cell_y][score_cell_x].setVisible(true);
+            }
+        }
+        return;
+    }
 
     public int getScore(){return score;}
     public void setScore(int new_score){
         score = new_score;
-        if(label_score != null)
-            this.remove(label_score);
-        int score_x = PREVIEW_AREA_X + (PREVIEW_AREA_X_CNT / 2 - 1) * Cell.BLOCK_WIDTH + PREVIEW_AREA_X_CNT, 
-            score_y = 120;
-        label_score = labelMake(score_x, score_y, Integer.toString(score),120, 60, 40);
-        label_score.setForeground(Color.WHITE);
-        this.add(label_score);
+        scoreDisplayUpdate();
+        // if(score_display != null)
+        //     this.remove(score_display);
+        // int score_x = PREVIEW_AREA_X + (PREVIEW_AREA_X_CNT / 2 - 1) * Cell.BLOCK_WIDTH + PREVIEW_AREA_X_CNT, 
+        //     score_y = 120;
+        // score_display = labelMake(score_x, score_y, Integer.toString(score),120, 60, 40);
+        // score_display.setForeground(Color.WHITE);
+        // this.add(score_display);
     }
     // --------------------------------------
     private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height){
@@ -539,6 +632,8 @@ class GamePanel extends JPanel{
         label.setVerticalAlignment(JLabel.CENTER);
         return label;
     }
+
+
     private void buildBorder(int x_cnt, int y_cnt, int x_init, int y_init, boolean preview_or_game){
         // load the gray_cell image
         for(int i = 0; i < y_cnt; i++){
@@ -563,13 +658,24 @@ class GamePanel extends JPanel{
             }
         }
     }
-    private void buildScore(int score_title_x, int score_title_y){
+    private void buildScoreTitle(int score_title_x, int score_title_y){
         JLabel score_title = labelMake(score_title_x, score_title_y, "Score", 120, 60, 40);
         score_title.setForeground(Color.WHITE); 
         this.add(score_title);
 
     }
-    
+    private void buildScoreDisplay(int score_x, int score_y){
+        int score_witdh = Cell.BLOCK_WIDTH - 15, score_height = Cell.BLOCK_HEIGHT - 15;
+        int score_height_cnt = 5, score_witdh_cnt = 15;
+        for(int i = 0; i < score_height_cnt; i++){
+            for(int j = 0; j < score_witdh_cnt; j++){
+                label_score_display[i][j] = labelMake(score_x + (j - 7) * score_witdh + 5 + (j / 3 - 2) * 10, score_y + score_height * i, "", score_witdh - 3, score_height - 3);
+                label_score_display[i][j].setIcon(cell_img.get("gray"));
+                label_score_display[i][j].setVisible(false);
+                this.add(label_score_display[i][j]);
+            }
+        }
+    }
     private void buildBoard(){
         // build the game area border, Note: GAME_AREA_X_CNT and GAME_AREA_Y_CNT is public static variable
         // true: game, false: preview
@@ -578,11 +684,14 @@ class GamePanel extends JPanel{
         buildBorder(PREVIEW_AREA_X_CNT, PREVIEW_AREA_Y_CNT, PREVIEW_AREA_X, PREVIEW_AREA_Y, false);
         int score_title_x = PREVIEW_AREA_X + (PREVIEW_AREA_X_CNT / 2 - 1) * Cell.BLOCK_WIDTH + PREVIEW_AREA_X_CNT, 
             score_title_y = 60;
-        buildScore(score_title_x, score_title_y);
+        buildScoreTitle(score_title_x, score_title_y);
+        int score_x = PREVIEW_AREA_X + (PREVIEW_AREA_X_CNT / 2 - 1) * Cell.BLOCK_WIDTH + PREVIEW_AREA_X_CNT, 
+            score_y = 120;
+        buildScoreDisplay(score_x, score_y);
         setScore(0);
     }
     private int score;
-    private static JLabel label_score = null;
+    private static JLabel [][] label_score_display = new JLabel[5][15]; // int score_height_cnt = 5, score_witdh_cnt = 15;
     private static JLabel [][] label_cells = new JLabel[GAME_AREA_Y_CNT][GAME_AREA_X_CNT];
     private static JLabel [][] label_preview = new JLabel[PREVIEW_AREA_Y_CNT - 2][PREVIEW_AREA_X_CNT - 2];
 }
