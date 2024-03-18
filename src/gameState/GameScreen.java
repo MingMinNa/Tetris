@@ -20,7 +20,7 @@ import java.util.function.*;
 public class GameScreen { 
     public static int time_ticks = 50;
     public static int key_press = -1;
-    public static int GAME_STATE_SCORE[] = {0, 400, 1000, -1}; // the score required into the next state
+    public static int GAME_STATE_SCORE[] = {0, 500, 1000, -1}; // the score required into the next state
 
     public GameScreen(JFrame frame){
         for(int i = 0; i < game_area_cells.length; i ++){
@@ -271,8 +271,16 @@ public class GameScreen {
             for(int i = 0; i < 4; i++){
                 int next_x = center_x + GameBlock.BLOCK_DIST[block_type][next_state][i][1];
                 int next_y = center_y + GameBlock.BLOCK_DIST[block_type][next_state][i][0];
-                if(next_x < 0 || next_x >= GamePanel.GAME_AREA_X_CNT || next_y < 0 || next_y >= GamePanel.GAME_AREA_Y_CNT){
+                if(next_y < 0 || next_y >= GamePanel.GAME_AREA_Y_CNT + 3){
                     rotate = false;break;
+                }
+                if(next_x < 0){
+                    tryMove("right");
+                    return checkRotate(current_block,current_cells,game_area_cells,direction);
+                }
+                else if(next_x >= GamePanel.GAME_AREA_X_CNT){
+                    tryMove("left");
+                    return checkRotate(current_block,current_cells,game_area_cells,direction);
                 }
                 if(current_cells_pos.contains(100 * (next_x) + next_y) == false && game_area_cells[next_y][next_x].getColor().equals("black") == false){
                     rotate = false;break;
@@ -385,10 +393,10 @@ public class GameScreen {
         }
         int current_score = background_panel.getScore();
         switch(del_line){
-            case 4: background_panel.setScore(current_score + 700);break;
-            case 3: background_panel.setScore(current_score + 500);break;
-            case 2: background_panel.setScore(current_score + 300);break;
-            case 1: background_panel.setScore(current_score + 100);break;
+            case 4: background_panel.setScore(current_score + 400);break;
+            case 3: background_panel.setScore(current_score + 250);break;
+            case 2: background_panel.setScore(current_score + 150);break;
+            case 1: background_panel.setScore(current_score + 50);break;
             default:
                 break;
         }
@@ -590,7 +598,7 @@ class GamePanel extends JPanel{
             "xoxxoxxxxooxoox",
             "xxxxooxxxooxxxx",
             "xxxxooxxxxoxxxx",
-            "xxxxoxxoxooxoox",
+            "xxxxoxooxooxoox",
             "xxxxoxxxxxoxxxx",
             "xxxxoxxxxooxxxx"
         };
