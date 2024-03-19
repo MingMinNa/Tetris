@@ -117,11 +117,11 @@ public class GameScreen {
                     }
                     else if(pressed_key.equals("right rotate")){
                         GameKeyHandler.changeRightRotateState();
-                        tryRotate("left");
+                        tryRotate("right");
                     }
                     else if(pressed_key.equals("left rotate")){
                         GameKeyHandler.changeLeftRotateState();
-                        tryRotate("right");
+                        tryRotate("left");
                     }
                     if(count2 >= 2)
                         count2 = 0;
@@ -190,7 +190,7 @@ public class GameScreen {
             if(checkRotate(current_block, current_cells, game_area_cells, direction)){
                 // System.out.println("Rotatte!!!");
                 int next_state;
-                if(direction.equals("right rotate"))    next_state = (current_block.getBlockState() + 1) % 4;
+                if(direction.equals("right"))    next_state = (current_block.getBlockState() + 1) % 4;
                 else                                             next_state = (current_block.getBlockState() - 1 + 4) % 4;
                 int block_type = current_block.getBlockType();
                 String block_color = current_block.getColor();
@@ -214,7 +214,7 @@ public class GameScreen {
                         }
                     }
                 }
-                current_block.nextState();
+                current_block.setState(next_state);
             }
         }
         // merge all the function "checkMoveDown", "checkMoveLeft" and "checkMoveRight"

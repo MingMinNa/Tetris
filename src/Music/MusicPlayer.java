@@ -45,8 +45,8 @@ public class MusicPlayer extends Thread {
     private Player player;
     private boolean isPlaying, repeat;
     private final Map<String, String> state_music = new HashMap<>(){{
-        put("GameState1", "sound\\拳皇八神.mp3");
-        put("GameState2", "sound\\拳皇京.mp3");
-        put("GameState3", "sound\\拳皇八神.mp3");
+        put("GameState1", "sound\\GameState1.mp3");
+        put("GameState2", "sound\\GameState2.mp3");
+        put("GameState3", "sound\\GameState3(Esaka).mp3");
     }};
 }
