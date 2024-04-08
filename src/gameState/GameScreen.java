@@ -3,11 +3,10 @@ package gameState;
 
 import javax.swing.*;
 
-import Music.MusicPlayer;
-
 import java.awt.*;
 import java.awt.event.*;
 import blocks.*;
+import music.MusicPlayer;
 
 import java.util.HashMap;
 import java.util.Map;

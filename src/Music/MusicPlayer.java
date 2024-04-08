@@ -1,4 +1,4 @@
-package Music;
+package music;
 
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
@@ -47,6 +47,6 @@ public class MusicPlayer extends Thread {
     private final Map<String, String> state_music = new HashMap<>(){{
         put("GameState1", "sound\\GameState1.mp3");
         put("GameState2", "sound\\GameState2.mp3");
-        put("GameState3", "sound\\GameState3(Esaka).mp3");
+        put("GameState3", "sound\\GameState3.mp3");
     }};
 }

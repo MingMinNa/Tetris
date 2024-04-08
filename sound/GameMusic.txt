@@ -1,0 +1,4 @@
+I've removed all the game music due to copyright issue. (they're all from KOF)
+To ensure you get the full gaming experience, 
+you'll need to find three mp3 files, place them to this folder(sound folder), and rename them "GameState1.mp3", "GameState2.mp3", "GameState3.mp3", respectively.
+Once done, the game should run successfully as expected.
