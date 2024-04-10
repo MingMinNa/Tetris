@@ -10,9 +10,6 @@ public class HomeScreen {
     public static boolean game_play = false; 
     public static int time_ticks = 60;
     public HomeScreen(JFrame frame){
-
-        // MusicPlayer musicPlayer = new MusicPlayer("HomeScreen", true);
-        // musicPlayer.start();
         
         HomePanel background_panel = new HomePanel();
         HomeKeyHandler.setPanel(background_panel);
@@ -30,7 +27,6 @@ public class HomeScreen {
         }
         // reset the setting for next loop
         game_play = false;
-        // musicPlayer.stopPlaying();
     }
 }
 class HomePanel extends JPanel{
@@ -54,13 +50,7 @@ class HomePanel extends JPanel{
 
     private JLabel labelMake(int center_x, int center_y, String words){
         int words_width = 100, words_height = 30;
-        JLabel label = new JLabel(words);
-        label.setBounds(center_x - words_width/2 , center_y - words_height/2, words_width, words_height);
-        
-        label.setFont(new Font("Arial", Font.BOLD, 20));
-        label.setHorizontalAlignment(JLabel.CENTER);
-        label.setVerticalAlignment(JLabel.CENTER);
-        return label;
+        return labelMake(center_x, center_y, words, words_width, words_height);
     }
     private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height){
         JLabel label = new JLabel(words);
@@ -132,6 +122,7 @@ class HomeKeyHandler implements KeyListener{
     
     @Override
     public void keyPressed(KeyEvent e) {
+        // Press any to play game, remove the component in the panel.
         HomeScreen.game_play = true;
         control_panel.removeAll();
         control_panel.revalidate();

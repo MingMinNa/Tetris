@@ -19,7 +19,8 @@ import java.util.function.*;
 public class GameScreen { 
     public static int time_ticks = 50;
     public static int key_press = -1;
-    public static int GAME_STATE_SCORE[] = {0, 500, 1000, -1}; // the score required into the next state
+
+    public static final int GAME_STATE_SCORE[] = {0, 500, 1000, -1}; // the score required into the next state
 
     public GameScreen(JFrame frame){
         for(int i = 0; i < game_area_cells.length; i ++){
@@ -38,11 +39,11 @@ public class GameScreen {
         background_panel.requestFocusInWindow();
         frame.revalidate();
         frame.repaint();
-        new GameTimer().run(frame);
+        new GameRunner().run(frame);
 
     }
 
-    class GameTimer{
+    class GameRunner{
         static boolean game_over = false;
         public void run(JFrame frame) {
             MusicPlayer music_player = null;
@@ -157,7 +158,7 @@ public class GameScreen {
             }
             else if(direction == "left"){
                 if(checkMove(current_cells, game_area_cells, direction)){
-                    // System.out.println("Hello");
+                    
                     for(int i = 0; i < 4; i ++ ){
                         Cell cell = current_cells[i];
                         game_area_cells[cell.getY()][cell.getX() - 1].setColor(cell.getColor());
@@ -187,7 +188,7 @@ public class GameScreen {
 
         private void tryRotate(String direction){
             if(checkRotate(current_block, current_cells, game_area_cells, direction)){
-                // System.out.println("Rotatte!!!");
+
                 int next_state;
                 if(direction.equals("right"))    next_state = (current_block.getBlockState() + 1) % 4;
                 else                                             next_state = (current_block.getBlockState() - 1 + 4) % 4;
@@ -256,15 +257,17 @@ public class GameScreen {
         private boolean checkRotate(GameBlock current_block, Cell [] current_cells, Cell[][] game_area_cells, String direction){
             int block_type = current_block.getBlockType();
             int next_state;
-            if(direction.equals("right rotate"))    next_state = (current_block.getBlockState() + 1) % 4;
+            if(direction.equals("right"))    next_state = (current_block.getBlockState() + 1) % 4;
             else                                             next_state = (current_block.getBlockState() - 1 + 4) % 4;
             if(block_type == 1) // O block, rotate operation is useless
                 return false;
             List<Integer> current_cells_pos = new ArrayList<>();
             for(int i = 0; i < 4; i++){
                 // 100 * x + y
+                // System.out.println(100 * current_cells[i].getX() + current_cells[i].getY());
                 current_cells_pos.add(100 * current_cells[i].getX() + current_cells[i].getY());
             }
+            // System.out.println("---------------------------------------");
             boolean rotate = true;
             int center_x = current_block.getCenterX(), center_y = current_block.getCenterY();
             for(int i = 0; i < 4; i++){
@@ -274,11 +277,13 @@ public class GameScreen {
                     rotate = false;break;
                 }
                 if(next_x < 0){
-                    tryMove("right");
+                    if(tryMove("right") == false)   return false;
+                    // tryMove("right");
                     return checkRotate(current_block,current_cells,game_area_cells,direction);
                 }
                 else if(next_x >= GamePanel.GAME_AREA_X_CNT){
-                    tryMove("left");
+                    if(tryMove("left") == false) return false;
+                    // tryMove("left");
                     return checkRotate(current_block,current_cells,game_area_cells,direction);
                 }
                 if(current_cells_pos.contains(100 * (next_x) + next_y) == false && game_area_cells[next_y][next_x].getColor().equals("black") == false){
@@ -415,6 +420,7 @@ class GamePanel extends JPanel{
     public static final int X_START = 130, Y_START = 60;
     public static final int PREVIEW_AREA_X = X_START + 1 + 400, PREVIEW_AREA_Y = Y_START + 1 + 200; 
     public static final int GAME_AREA_X = X_START + 1, GAME_AREA_Y = Y_START + 1;
+    public static final int FRAME_WIDTH = 800, FRAME_HEIGHT = 800;
 
     public static Map<String,ImageIcon> cell_img = new HashMap<>();
 
@@ -431,7 +437,7 @@ class GamePanel extends JPanel{
         setPreferredSize(new Dimension(300, 200));
         setFocusable(true);
         setBackground(Color.BLACK);
-        setBounds(0, 0, 800, 800);
+        setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         setLayout(null);
         buildBoard();
         
