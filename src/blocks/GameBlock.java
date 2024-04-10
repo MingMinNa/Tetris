@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameBlock {
+    // color_list is for randomly selecting a color 
     public static final List<String> COLOR_LIST =  new ArrayList<>(){{
         add("blue");
         add( "green");
@@ -14,7 +15,8 @@ public class GameBlock {
         add("yellow");
         add("gray");
     }};
-    // block_type(0 ~ 6), block_state(0 ~ 3), block_cell_from_center_cell(0 ~ 3), cell_y and cell_x(0 - 1)
+    // BLOCK_DIST is for four directions based on the the center cell (detail in the below)
+    // block_type(0 ~ 6), block_directions(or state)(0 ~ 3), block_cell_from_center_cell(0 ~ 3), cell_y and cell_x(0 - 1)
     public static final int [][][][] BLOCK_DIST = {
         {{{0, -1}, {0, 0}, {0, 1}, {0, 2}}, {{-1, 0}, {0, 0}, {1, 0}, {2, 0}}, {{0, -2}, {0, -1}, {0, 0}, {0, 1}}, {{-2, 0}, {-1, 0}, {0, 0}, {1, 0}}},
         {{{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}},
@@ -45,44 +47,46 @@ public class GameBlock {
     }
     
     public String getColor(){return color;}
+    public int getBlockType(){return block_type;}
+    public boolean getForPreview(){return for_preview;}
+    public int getCenterX(){return block_center_x;}
+    public int getCenterY(){return block_center_y;}
+    public int getBlockState(){return block_state;}
+
     public void setColor(int color_idx){
         if(color_idx < COLOR_LIST.size())
             color = COLOR_LIST.get(color_idx);
         return;
     }
     public void setColor(String colorStr){
-        if(COLOR_LIST.contains(colorStr)){
+        if(COLOR_LIST.contains(colorStr))
             color = colorStr;
-        }
         return;
     }
-
-    public int getBlockType(){return block_type;}
     public void setBlockType(int idx){
         if(idx <= 6 && idx >= 0)
             block_type = idx;
+        return;
     }
-
-    
-    public boolean getForPreview(){return for_preview;}
-    
     public void setBlockCenter(int center_x, int center_y){
         this.block_center_x = center_x;
         this.block_center_y = center_y;
     }
-    public int getCenterX(){return block_center_x;}
-    public int getCenterY(){return block_center_y;}
-    public int getBlockState(){return block_state;}
-    public void setState(int next_state){block_state = next_state;}
+    public void setState(int next_state){
+        if(next_state >= 0 && next_state <= 3)
+            block_state = next_state;
+    }
+    
     // -----------------------------
     private int block_center_x, block_center_y;
-    private int block_type = -1;
-    private int block_state = 0;
-    private String color = "red";
-    private boolean for_preview = false;
+    private int block_type;
+    private int block_state;
+    private String color;
+    private boolean for_preview;
 }
 
 /*
+* center_cell(o), other_cells(x)
 * block_type
 * I block
 *  0-0              0-1             0-2             0-3

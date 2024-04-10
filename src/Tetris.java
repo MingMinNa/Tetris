@@ -11,6 +11,7 @@ public class Tetris {
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+        
         while(true){
             new HomeScreen(frame);
             new GameScreen(frame);
