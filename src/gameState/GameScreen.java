@@ -18,7 +18,7 @@ import java.util.function.*;
 
 public class GameScreen { 
     public static int time_ticks = 50;
-    public static final int GAME_STATE_SCORE[] = {0, 500, 1000, -1}; // the score required into the next state
+    public static final int GAME_SPEEDUP_STATE_SCORE[] = {0, 500, 1000, -1}; // the score required into the next state
     public static final int GAME_STATE_AUTO_FALL_TICK[] = {0, 6, 4, 2}; // change required auto-fall tick number to satisfy the speedup function
 
     public GameScreen(JFrame frame){
@@ -37,41 +37,50 @@ public class GameScreen {
         background_panel.paintPreviewBlock(preview_blocks);
         background_panel.revalidate();
         background_panel.requestFocusInWindow();
+        background_panel.scoreDisplayUpdate(score);
         frame.revalidate();
         frame.repaint();
 
         // after building the component, change control to GameRunner
-        new GameRunner().run(frame);
-
+        boolean GameOver = new GameRunner().run(frame);
+        if (GameOver){
+            System.out.println("Gameover");
+        }
+        else{
+            System.out.println("Game win");
+        }
+        
+        // Remove all the components in the GameScreen
+        removePanel(frame);
     }
 
     class GameRunner{
-        static boolean game_over = false;
 
-        public void run(JFrame frame) {
+        public boolean run(JFrame frame) {
             MusicPlayer music_player = null;
+            boolean game_over = false;
             // auto_fall_ticks is for auto-fall; moval_time_ticks is for left, right and down
             // auto-fall_time_ticks = 6 * time_ticks, moval_time_ticks = 2 * time_ticks
             int auto_fall_ticks = 0, moval_ticks = 0;
-            while(true){
+            GAME_END_LABEL:while(true){
                 // If the score reach the requirement to the next state, change the game music and enhance the game level(hardness).
                 if(checkNextGameState()){
                     if(music_player != null){music_player.stopPlaying();}
-                    music_player = new MusicPlayer("GameState" + Integer.toString(current_state), true);
+                    music_player = new MusicPlayer("GameState" + Integer.toString(current_speedup_state), true);
                     music_player.start();
                 }
 
                 long current_time = System.currentTimeMillis();
                 long delta_time = current_time - last_update_time;
                 
-                if(auto_fall_ticks >= GAME_STATE_AUTO_FALL_TICK[current_state]){
+                if(auto_fall_ticks >= GAME_STATE_AUTO_FALL_TICK[current_speedup_state]){
                     auto_fall_ticks = 0;
                     background_panel.cellPositionUpdate(game_area_cells);
         
                     if(tryMove("down") == false){
                         if(current_cells[3].getY() <= 2){
                             game_over = true;
-                            break;
+                            break GAME_END_LABEL;
                         }
                         current_block = null;
                         
@@ -103,7 +112,7 @@ public class GameScreen {
                         if(tryMove("down") == false){
                             if(current_cells[3].getY() <= 2){
                                 game_over = true;
-                                break;
+                                break GAME_END_LABEL;
                             }
                             current_block = null;
                             gameLineCheck(game_area_cells);
@@ -114,7 +123,7 @@ public class GameScreen {
                         while(tryMove("down") == true);
                         if(current_cells[3].getY() <= 2){
                             game_over = true;
-                            break;
+                            break GAME_END_LABEL;
                         }
                         current_block = null;
                         gameLineCheck(game_area_cells);
@@ -134,15 +143,11 @@ public class GameScreen {
                     frame.revalidate();
                     frame.repaint();
                 }
-
-                if(game_over == true)    break;
             }
             if(music_player != null)
                 music_player.stopPlaying();
             GameKeyHandler.resetSetting();
-            game_over = false;
-            // Remove all the components in the GameScreen
-            removePanel(frame);
+            return game_over;
         }
 
         private boolean tryMove(String direction){
@@ -157,7 +162,6 @@ public class GameScreen {
                     current_block.setBlockCenter(current_block.getCenterX(), current_block.getCenterY() + 1);
                     return true;
                 }
-                return false;
             }
             else if(direction == "left"){
                 if(checkMove(current_cells, game_area_cells, direction)){
@@ -171,7 +175,6 @@ public class GameScreen {
                     current_block.setBlockCenter(current_block.getCenterX() - 1, current_block.getCenterY());
                     return true;
                 }
-                return false;
             }
             else if(direction == "right"){
                 if(checkMove(current_cells, game_area_cells, direction)){
@@ -184,7 +187,6 @@ public class GameScreen {
                     current_block.setBlockCenter(current_block.getCenterX() + 1, current_block.getCenterY());
                     return true;
                 }
-                return false;
             }
             return false;
         }
@@ -306,13 +308,14 @@ public class GameScreen {
     private GameBlock current_block = null;
     private Cell [] current_cells =  new Cell[4];
 
-    // GameState
-    private int current_state = 0; 
+    // Game
+    private int current_speedup_state = 0; 
+    private int score = 0;
 
     private boolean checkNextGameState(){
         boolean next_state = false; 
-        while(GAME_STATE_SCORE[current_state] >= 0 && background_panel.getScore() >= GAME_STATE_SCORE[current_state]){
-            current_state = current_state + 1;
+        while(GAME_SPEEDUP_STATE_SCORE[current_speedup_state] >= 0 && score >= GAME_SPEEDUP_STATE_SCORE[current_speedup_state]){
+            current_speedup_state = current_speedup_state + 1;
             next_state = true;
         }
         return next_state;
@@ -411,16 +414,17 @@ public class GameScreen {
             else
                 del_line++;
         }
-        int current_score = background_panel.getScore();
+        if(del_line == 0)   return;
 
         switch(del_line){
-            case 4: background_panel.setScore(current_score + 400);break;
-            case 3: background_panel.setScore(current_score + 250);break;
-            case 2: background_panel.setScore(current_score + 150);break;
-            case 1: background_panel.setScore(current_score + 50);break;
+            case 4: score += 400;break;
+            case 3: score += 250;break;
+            case 2: score += 150;break;
+            case 1: score += 50;break;
             default:
                 break;
         }
+        background_panel.scoreDisplayUpdate(score);
     }
     private void removePanel(JFrame frame){
         background_panel.removeAll();
@@ -447,8 +451,6 @@ class GamePanel extends JPanel{
             String color = GameBlock.COLOR_LIST.get(i);
             cell_img.put(color, new ImageIcon("img\\" + color + ".jpg"));
         }
-
-        score = 0;
         setPreferredSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
         setFocusable(true);
         setBackground(Color.BLACK);
@@ -462,155 +464,7 @@ class GamePanel extends JPanel{
             }
         });
     }
-
-    public void cellPositionUpdate(Cell [][] game_area_cells){
-        for(int i = 0; i < GAME_AREA_Y_CNT; i++){
-            for(int j = 0; j < GAME_AREA_X_CNT; j++){
-                if (game_area_cells[i + 3][j].getColor().equals("black")){
-                    label_cells[i][j].setVisible(false);
-                }
-                else{
-                    label_cells[i][j].setVisible(true);
-                    label_cells[i][j].setIcon(cell_img.get(game_area_cells[i + 3][j].getColor()));
-                }
-            }
-        }
-    }
-
-    /* for paintPreviewBlock function 
-     * block_type
-     * 0: I block
-     *  * * * * * *
-     *  * * * * * *
-     *  * x x x x *
-     *  * * * * * *
-     * 1: O block
-     *  * * * * * *
-     *  * * x x * *
-     *  * * x x * *
-     *  * * * * * *
-     * 2: S block
-     *  * * * * * *
-     *  * * x x * *
-     *  * x x * * *
-     *  * * * * * *
-     * 3: Z block
-     *  * * * * * *
-     *  * * x x * *
-     *  * * * x x *
-     *  * * * * * *
-     * 4: J block 
-     *  * * * * * *
-     *  * x * * * *
-     *  * x x x * *
-     *  * * * * * *
-     * 5: L block
-     *  * * * * * *
-     *  * * * * x *
-     *  * * x x x *
-     *  * * * * * *
-     * 6: T block
-     *  * * * * * *
-     *  * * x * * *
-     *  * x x x * *
-     *  * * * * * *
-     */
-    public void paintPreviewBlock(GameBlock [] blocks){
-        int [][][] colored_pos = {{{3, 2}, {3, 3}, {3, 4}, {3, 5}}, { {2, 3}, {2, 4}, {3, 3}, {3, 4}},
-        { {2, 3}, {2, 4}, {3, 2}, {3, 3}}, { {2, 3}, {2, 4}, {3, 4}, {3, 5}}, { {2, 2}, {3, 2}, {3, 3}, {3, 4}}, { {2, 5}, {3, 3}, {3, 4}, {3, 5}}, { {2, 3}, {3, 2}, {3, 3}, {3, 4}}};
-
-        for(int i = 0; i < label_preview.length; i++){
-            for(int j = 0; j < label_preview[0].length; j++){
-                label_preview[i][j].setVisible(false);
-            }
-        }
-        int type = blocks[0].getBlockType();
-        for(int i = 0; i < 4;i ++){
-            label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setVisible(true);
-            label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img\\" + blocks[0].getColor() + ".jpg"));
-        }
-        type = blocks[1].getBlockType();
-        for(int i = 0; i < 4;i ++){
-            label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setVisible(true);
-            label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img\\" + blocks[1].getColor() + ".jpg"));
-        }
-        this.revalidate();
-    }
-    public int getScore(){return score;}
-    public void setScore(int new_score){
-        score = new_score;
-        scoreDisplayUpdate();
-    }
-    // --------------------------------------
-    private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height){
-        return labelMake(center_x, center_y, words, words_width, words_height, 20);
-    }
-    private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height, int font_size){
-        JLabel label = new JLabel(words);
-        label.setBounds(center_x - words_width/2 , center_y - words_height/2, words_width, words_height);
-        
-        label.setFont(new Font("Arial", Font.BOLD, font_size));
-        label.setHorizontalAlignment(JLabel.CENTER);
-        label.setVerticalAlignment(JLabel.CENTER);
-        return label;
-    }
-    private void buildBorder(int x_cnt, int y_cnt, int x_init, int y_init, boolean preview_or_game){
-        // load the gray_cell image
-        for(int i = 0; i < y_cnt; i++){
-            for(int j = 0;j < x_cnt; j++){
-                if(i == 0 || i == y_cnt - 1 || j == 0 || j == x_cnt - 1){
-                    
-                    JLabel borderLabel = labelMake(x_init + Cell.BLOCK_WIDTH * j , y_init + Cell.BLOCK_HEIGHT * i , "", Cell.BLOCK_WIDTH - 3, Cell.BLOCK_HEIGHT - 3);
-                    borderLabel.setIcon(cell_img.get("gray"));
-                    this.add(borderLabel);
-                }
-                else if(preview_or_game == true){
-                    label_cells[i - 1][j - 1] = labelMake(X_START + Cell.BLOCK_WIDTH * j + 1,Y_START + Cell.BLOCK_HEIGHT * i + 1,"", Cell.BLOCK_WIDTH - 3, Cell.BLOCK_HEIGHT - 3);
-                    label_cells[i - 1][j - 1].setVisible(false);
-                    this.add(label_cells[i - 1][j - 1]);
-                }
-                else{
-                    JLabel innerLabel = labelMake(x_init + Cell.BLOCK_WIDTH * j , y_init + Cell.BLOCK_HEIGHT * i , "", Cell.BLOCK_WIDTH - 3, Cell.BLOCK_HEIGHT - 3);
-                    label_preview[i - 1][j - 1] = innerLabel;
-                    innerLabel.setVisible(false);
-                    this.add(label_preview[i - 1][j - 1]);
-                }
-            }
-        }
-    }
-    private void buildScoreTitle(int score_title_x, int score_title_y){
-        JLabel score_title = labelMake(score_title_x, score_title_y, "Score", 120, 60, 40);
-        score_title.setForeground(Color.WHITE); 
-        this.add(score_title);
-
-    }
-    private void buildScoreDisplay(int score_x, int score_y){
-        int score_witdh = Cell.BLOCK_WIDTH - 15, score_height = Cell.BLOCK_HEIGHT - 15;
-        int score_height_cnt = 5, score_witdh_cnt = 15;
-        for(int i = 0; i < score_height_cnt; i++){
-            for(int j = 0; j < score_witdh_cnt; j++){
-                label_score_display[i][j] = labelMake(score_x + (j - 7) * score_witdh + 5 + (j / 3 - 2) * 10, score_y + score_height * i, "", score_witdh - 3, score_height - 3);
-                label_score_display[i][j].setIcon(cell_img.get("gray"));
-                label_score_display[i][j].setVisible(false);
-                this.add(label_score_display[i][j]);
-            }
-        }
-    }
-    private void buildBoard(){
-        // build the game area border, Note: GAME_AREA_X_CNT and GAME_AREA_Y_CNT is public static variable
-        // true: game_border, false: preview_border
-        buildBorder(GAME_AREA_X_CNT + 2, GAME_AREA_Y_CNT + 2, GAME_AREA_X, GAME_AREA_Y, true);
-        // build the preview border
-        buildBorder(PREVIEW_AREA_X_CNT, PREVIEW_AREA_Y_CNT, PREVIEW_AREA_X, PREVIEW_AREA_Y, false);
-        int score_title_x = PREVIEW_AREA_X + (PREVIEW_AREA_X_CNT / 2 - 1) * Cell.BLOCK_WIDTH + PREVIEW_AREA_X_CNT, 
-            score_title_y = 60;
-        buildScoreTitle(score_title_x, score_title_y);
-        int score_x = PREVIEW_AREA_X + (PREVIEW_AREA_X_CNT / 2 - 1) * Cell.BLOCK_WIDTH + PREVIEW_AREA_X_CNT, 
-            score_y = 120;
-        buildScoreDisplay(score_x, score_y);
-        setScore(0);
-    }
-    private void scoreDisplayUpdate(){
+    public void scoreDisplayUpdate(int score){
         // refresh
         int score_height_cnt = 5, score_witdh_cnt = 15;
         for(int i = 0; i < score_height_cnt;i ++){
@@ -704,8 +558,147 @@ class GamePanel extends JPanel{
         }
         return;
     }
+    public void cellPositionUpdate(Cell [][] game_area_cells){
+        for(int i = 0; i < GAME_AREA_Y_CNT; i++){
+            for(int j = 0; j < GAME_AREA_X_CNT; j++){
+                if (game_area_cells[i + 3][j].getColor().equals("black")){
+                    label_cells[i][j].setVisible(false);
+                }
+                else{
+                    label_cells[i][j].setVisible(true);
+                    label_cells[i][j].setIcon(cell_img.get(game_area_cells[i + 3][j].getColor()));
+                }
+            }
+        }
+    }
 
-    private int score;
+    /* for paintPreviewBlock function 
+     * block_type
+     * 0: I block
+     *  * * * * * *
+     *  * * * * * *
+     *  * x x x x *
+     *  * * * * * *
+     * 1: O block
+     *  * * * * * *
+     *  * * x x * *
+     *  * * x x * *
+     *  * * * * * *
+     * 2: S block
+     *  * * * * * *
+     *  * * x x * *
+     *  * x x * * *
+     *  * * * * * *
+     * 3: Z block
+     *  * * * * * *
+     *  * * x x * *
+     *  * * * x x *
+     *  * * * * * *
+     * 4: J block 
+     *  * * * * * *
+     *  * x * * * *
+     *  * x x x * *
+     *  * * * * * *
+     * 5: L block
+     *  * * * * * *
+     *  * * * * x *
+     *  * * x x x *
+     *  * * * * * *
+     * 6: T block
+     *  * * * * * *
+     *  * * x * * *
+     *  * x x x * *
+     *  * * * * * *
+     */
+    public void paintPreviewBlock(GameBlock [] blocks){
+        int [][][] colored_pos = {{{3, 2}, {3, 3}, {3, 4}, {3, 5}}, { {2, 3}, {2, 4}, {3, 3}, {3, 4}},
+        { {2, 3}, {2, 4}, {3, 2}, {3, 3}}, { {2, 3}, {2, 4}, {3, 4}, {3, 5}}, { {2, 2}, {3, 2}, {3, 3}, {3, 4}}, { {2, 5}, {3, 3}, {3, 4}, {3, 5}}, { {2, 3}, {3, 2}, {3, 3}, {3, 4}}};
+
+        for(int i = 0; i < label_preview.length; i++){
+            for(int j = 0; j < label_preview[0].length; j++){
+                label_preview[i][j].setVisible(false);
+            }
+        }
+        int type = blocks[0].getBlockType();
+        for(int i = 0; i < 4;i ++){
+            label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setVisible(true);
+            label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img\\" + blocks[0].getColor() + ".jpg"));
+        }
+        type = blocks[1].getBlockType();
+        for(int i = 0; i < 4;i ++){
+            label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setVisible(true);
+            label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img\\" + blocks[1].getColor() + ".jpg"));
+        }
+        this.revalidate();
+    }
+    // --------------------------------------
+    private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height){
+        return labelMake(center_x, center_y, words, words_width, words_height, 20);
+    }
+    private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height, int font_size){
+        JLabel label = new JLabel(words);
+        label.setBounds(center_x - words_width/2 , center_y - words_height/2, words_width, words_height);
+        
+        label.setFont(new Font("Arial", Font.BOLD, font_size));
+        label.setHorizontalAlignment(JLabel.CENTER);
+        label.setVerticalAlignment(JLabel.CENTER);
+        return label;
+    }
+    private void buildBorder(int x_cnt, int y_cnt, int x_init, int y_init, boolean preview_or_game){
+        // load the gray_cell image
+        for(int i = 0; i < y_cnt; i++){
+            for(int j = 0;j < x_cnt; j++){
+                if(i == 0 || i == y_cnt - 1 || j == 0 || j == x_cnt - 1){
+                    
+                    JLabel borderLabel = labelMake(x_init + Cell.BLOCK_WIDTH * j , y_init + Cell.BLOCK_HEIGHT * i , "", Cell.BLOCK_WIDTH - 3, Cell.BLOCK_HEIGHT - 3);
+                    borderLabel.setIcon(cell_img.get("gray"));
+                    this.add(borderLabel);
+                }
+                else if(preview_or_game == true){
+                    label_cells[i - 1][j - 1] = labelMake(X_START + Cell.BLOCK_WIDTH * j + 1,Y_START + Cell.BLOCK_HEIGHT * i + 1,"", Cell.BLOCK_WIDTH - 3, Cell.BLOCK_HEIGHT - 3);
+                    label_cells[i - 1][j - 1].setVisible(false);
+                    this.add(label_cells[i - 1][j - 1]);
+                }
+                else{
+                    JLabel innerLabel = labelMake(x_init + Cell.BLOCK_WIDTH * j , y_init + Cell.BLOCK_HEIGHT * i , "", Cell.BLOCK_WIDTH - 3, Cell.BLOCK_HEIGHT - 3);
+                    label_preview[i - 1][j - 1] = innerLabel;
+                    innerLabel.setVisible(false);
+                    this.add(label_preview[i - 1][j - 1]);
+                }
+            }
+        }
+    }
+    private void buildScoreTitle(int score_title_x, int score_title_y){
+        JLabel score_title = labelMake(score_title_x, score_title_y, "Score", 120, 60, 40);
+        score_title.setForeground(Color.WHITE); 
+        this.add(score_title);
+
+    }
+    private void buildScoreDisplay(int score_x, int score_y){
+        int score_witdh = Cell.BLOCK_WIDTH - 15, score_height = Cell.BLOCK_HEIGHT - 15;
+        int score_height_cnt = 5, score_witdh_cnt = 15;
+        for(int i = 0; i < score_height_cnt; i++){
+            for(int j = 0; j < score_witdh_cnt; j++){
+                label_score_display[i][j] = labelMake(score_x + (j - 7) * score_witdh + 5 + (j / 3 - 2) * 10, score_y + score_height * i, "", score_witdh - 3, score_height - 3);
+                label_score_display[i][j].setIcon(cell_img.get("gray"));
+                label_score_display[i][j].setVisible(false);
+                this.add(label_score_display[i][j]);
+            }
+        }
+    }
+    private void buildBoard(){
+        // build the game area border, Note: GAME_AREA_X_CNT and GAME_AREA_Y_CNT is public static variable
+        // true: game_border, false: preview_border
+        buildBorder(GAME_AREA_X_CNT + 2, GAME_AREA_Y_CNT + 2, GAME_AREA_X, GAME_AREA_Y, true);
+        // build the preview border
+        buildBorder(PREVIEW_AREA_X_CNT, PREVIEW_AREA_Y_CNT, PREVIEW_AREA_X, PREVIEW_AREA_Y, false);
+        int score_title_x = PREVIEW_AREA_X + (PREVIEW_AREA_X_CNT / 2 - 1) * Cell.BLOCK_WIDTH + PREVIEW_AREA_X_CNT, 
+            score_title_y = 60;
+        buildScoreTitle(score_title_x, score_title_y);
+        int score_x = PREVIEW_AREA_X + (PREVIEW_AREA_X_CNT / 2 - 1) * Cell.BLOCK_WIDTH + PREVIEW_AREA_X_CNT, 
+            score_y = 120;
+        buildScoreDisplay(score_x, score_y);
+    }
     private static JLabel [][] label_score_display = new JLabel[5][15]; // int score_height_cnt = 5, score_witdh_cnt = 15;
     private static JLabel [][] label_cells = new JLabel[GAME_AREA_Y_CNT][GAME_AREA_X_CNT];
     private static JLabel [][] label_preview = new JLabel[PREVIEW_AREA_Y_CNT - 2][PREVIEW_AREA_X_CNT - 2];
