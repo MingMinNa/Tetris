@@ -1,6 +1,7 @@
 import javax.swing.*;
 
-import gameState.*;
+import State.gameState.GameScreen;
+import State.homeState.HomeScreen;
 
 public class Tetris {
     // windows width: FRAME_WIDTH; windows height: FRAME_HEIGHT
