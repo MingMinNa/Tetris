@@ -19,6 +19,7 @@ import java.util.function.*;
 public class GameScreen { 
     public static int time_ticks = 50;
     public static final int GAME_STATE_SCORE[] = {0, 500, 1000, -1}; // the score required into the next state
+    public static final int GAME_STATE_AUTO_FALL_TICK[] = {0, 6, 4, 2}; // change required auto-fall tick number to satisfy the speedup function
 
     public GameScreen(JFrame frame){
         for(int i = 0; i < game_area_cells.length; i ++){
@@ -63,7 +64,7 @@ public class GameScreen {
                 long current_time = System.currentTimeMillis();
                 long delta_time = current_time - last_update_time;
                 
-                if(auto_fall_ticks >= 6){
+                if(auto_fall_ticks >= GAME_STATE_AUTO_FALL_TICK[current_state]){
                     auto_fall_ticks = 0;
                     background_panel.cellPositionUpdate(game_area_cells);
         
