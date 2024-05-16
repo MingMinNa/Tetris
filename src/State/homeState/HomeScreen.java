@@ -7,22 +7,19 @@ import java.awt.event.*;
 
 
 public class HomeScreen {
-    public static boolean game_play = false; 
-    public static int time_ticks = 60; // current is useless 
 
     public HomeScreen(JFrame frame){
         
-        game_play = false;
         HomePanel background_panel = new HomePanel();
-        HomeKeyHandler.setPanel(background_panel);
         frame.getContentPane().add(background_panel);
         background_panel.requestFocusInWindow();
 
-        while(game_play == false){
+        while(background_panel.getHandler().checkEnter() == false){
             frame.revalidate();
             frame.repaint();
         }
-
+        background_panel.removeAll();
+        background_panel.revalidate();
         frame.getContentPane().remove(background_panel);
     }
 }
@@ -34,10 +31,11 @@ class HomePanel extends JPanel{
         setBackground(Color.BLACK);
         setLayout(null);
 
-        keyboard_description();
-        game_cover();
+        keyboardDescription();
+        gameCover();
 
-        addKeyListener(new HomeKeyHandler());
+        handler = new HomeKeyHandler();
+        addKeyListener(handler);
         addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 requestFocusInWindow();
@@ -45,7 +43,10 @@ class HomePanel extends JPanel{
         });
         
     }
-    
+    public HomeKeyHandler getHandler(){
+        return handler;
+    }
+    // -----------------------
     private JLabel labelMake(int center_x, int center_y, String words){
         int words_width = 100, words_height = 30;
         return labelMake(center_x, center_y, words, words_width, words_height);
@@ -59,7 +60,7 @@ class HomePanel extends JPanel{
         label.setVerticalAlignment(JLabel.CENTER);
         return label;
     }
-    private void keyboard_description(){
+    private void keyboardDescription(){
         // Describe "How to play"
         int x_start = 350;
         int y_start = 500;
@@ -108,13 +109,13 @@ class HomePanel extends JPanel{
         add(move_descrip);
         add(rotate_descrip);
     }
-    private void game_cover(){
+    private void gameCover(){
         ImageIcon cover = new ImageIcon("img\\cover.png");
         JLabel coverLabel = labelMake(400, 300, "", 250, 250 );
         coverLabel.setIcon(cover);
         add(coverLabel);
     }
-
+    private HomeKeyHandler handler = null;
 }
 
 class HomeKeyHandler implements KeyListener{
@@ -122,15 +123,17 @@ class HomeKeyHandler implements KeyListener{
     public void keyPressed(KeyEvent e) {}
     @Override
     public void keyReleased(KeyEvent e) {
-        // Press any to play game, remove the panel in the frame.
-        HomeScreen.game_play = true;
-        control_panel.removeAll();
-        control_panel.revalidate();
+        // Press Enter to play game
+        int key_code = e.getKeyCode();
+        if(key_code == KeyEvent.VK_ENTER)
+            pressed_enter = true;
     }
     @Override
     public void keyTyped(KeyEvent e) {}
-
-    public static void setPanel(HomePanel background_panel){control_panel = background_panel;}
+    
+    public boolean checkEnter(){
+        return pressed_enter;
+    }
     // ---------------------------
-    private static HomePanel control_panel;
+    private boolean pressed_enter = false;
 }
