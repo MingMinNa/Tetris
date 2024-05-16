@@ -21,7 +21,7 @@ public class GameScreen {
     public static int time_ticks = 50;
     public static final int GAME_SPEEDUP_STATE_SCORE[] = {0, 500, 1000, -1}; // the score required into the next state
     public static final int GAME_STATE_AUTO_FALL_TICK[] = {0, 6, 4, 2}; // change required auto-fall tick number to satisfy the speedup function
-    public static int GAME_CLEAR_SCORE = 2000;
+    public static int GAME_CLEAR_SCORE = 1500;
 
     public GameScreen(JFrame frame){
         for(int i = 0; i < game_area_cells.length; i ++){
@@ -46,7 +46,7 @@ public class GameScreen {
         // after building the component, change control to GameRunner
         boolean game_over = new GameRunner().run(frame);
         background_panel.getGameEndPanel().GameEndState(game_over);
-        
+
         // Remove all the components in the GameScreen
         removePanel(frame);
     }
@@ -69,6 +69,7 @@ public class GameScreen {
 
                 long current_time = System.currentTimeMillis();
                 long delta_time = current_time - last_update_time;
+                GameKeyHandler key_handler = background_panel.getHandler();
                 
                 if(auto_fall_ticks >= GAME_STATE_AUTO_FALL_TICK[current_speedup_state]){
                     auto_fall_ticks = 0;
@@ -99,7 +100,7 @@ public class GameScreen {
                         background_panel.paintPreviewBlock(preview_blocks);
                     }
                     // keyboard operation
-                    String pressed_key = GameKeyHandler.getCurrentKey();
+                    String pressed_key = key_handler.getCurrentKey();
                     if( pressed_key.equals("left") && moval_ticks >= 2){
                         tryMove("left");
                     }   
@@ -118,7 +119,7 @@ public class GameScreen {
                         }
                     }
                     else if(pressed_key.equals("space")){
-                        auto_fall_ticks = 0;GameKeyHandler.changeSpaceState();
+                        auto_fall_ticks = 0;key_handler.changeSpaceState();
                         while(tryMove("down") == true);
                         if(current_cells[3].getY() <= 2){
                             game_over = true;
@@ -128,11 +129,11 @@ public class GameScreen {
                         gameLineCheck(game_area_cells);
                     }
                     else if(pressed_key.equals("right rotate")){
-                        GameKeyHandler.changeRightRotateState();
+                        key_handler.changeRightRotateState();
                         tryRotate("right");
                     }
                     else if(pressed_key.equals("left rotate")){
-                        GameKeyHandler.changeLeftRotateState();
+                        key_handler.changeLeftRotateState();
                         tryRotate("left");
                     }
                     if(moval_ticks >= 2)
@@ -147,7 +148,7 @@ public class GameScreen {
             }
             if(music_player != null)
                 music_player.stopPlaying();
-            GameKeyHandler.reset();
+
             return game_over; // true: game_over, false: game_clear
         }
 
@@ -457,7 +458,8 @@ class GamePanel extends JPanel{
         game_end_panel = new GameEND(this);
         
         buildBoard();
-        addKeyListener(new GameKeyHandler());
+        handler = new GameKeyHandler();
+        addKeyListener(handler);
         addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 requestFocusInWindow();
@@ -571,7 +573,6 @@ class GamePanel extends JPanel{
             }
         }
     }
-
     /* for paintPreviewBlock function 
      * block_type
      * 0: I block
@@ -631,10 +632,14 @@ class GamePanel extends JPanel{
         }
         this.revalidate();
     }
-    
+
     public GameEND getGameEndPanel(){
         return this.game_end_panel;
     }
+    public GameKeyHandler getHandler(){
+        return this.handler;
+    }
+    
     // --------------------------------------
     private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height){
         return labelMake(center_x, center_y, words, words_width, words_height, 20);
@@ -706,7 +711,9 @@ class GamePanel extends JPanel{
     private static JLabel [][] label_score_display = new JLabel[5][15]; // int score_height_cnt = 5, score_witdh_cnt = 15;
     private static JLabel [][] label_cells = new JLabel[GAME_AREA_Y_CNT][GAME_AREA_X_CNT];
     private static JLabel [][] label_preview = new JLabel[PREVIEW_AREA_Y_CNT - 2][PREVIEW_AREA_X_CNT - 2];
+    
     private GameEND game_end_panel;
+    private GameKeyHandler handler;
 }
 
 
@@ -714,37 +721,37 @@ class GameKeyHandler implements KeyListener{
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
-        if(code == 32 && space_done == false){ // space
+        if(code == KeyEvent.VK_SPACE && space_done == false){ // space
             space = true;
         }
-        else if(code == 65 && left_rotate_done == false){ // A is left rotate
+        else if(code == KeyEvent.VK_A && left_rotate_done == false){ // A is left rotate
             left_rotate = true;
         }
-        else if(code == 68 && right_rotate_done == false){ // D is right rotate 
+        else if(code == KeyEvent.VK_D && right_rotate_done == false){ // D is right rotate 
             right_rotate = true;
             right_rotate_done = false;
         }
-        else if(code == 37) // left
+        else if(code == KeyEvent.VK_LEFT) // left
             left = true;
-        else if(code == 39) // right
+        else if(code == KeyEvent.VK_RIGHT) // right
             right = true;
-        else if(code == 40) // down
+        else if(code == KeyEvent.VK_DOWN) // down
             down = true;
     }
     @Override
     public void keyReleased(KeyEvent e) {
         int code = e.getKeyCode();
-        if(code == 37)  left = false;
-        if(code == 39)  right = false;
-        if(code == 40)  down = false;
-        if(code == 32){  space = false; space_done = false;}
-        if(code == 65){  left_rotate = false; left_rotate_done = false;}
-        if(code == 68){  right_rotate = false; right_rotate_done = false;}
+        if(code == KeyEvent.VK_LEFT)  left = false;
+        if(code == KeyEvent.VK_RIGHT)  right = false;
+        if(code == KeyEvent.VK_DOWN)  down = false;
+        if(code == KeyEvent.VK_SPACE){  space = false; space_done = false;}
+        if(code == KeyEvent.VK_A){  left_rotate = false; left_rotate_done = false;}
+        if(code == KeyEvent.VK_D){  right_rotate = false; right_rotate_done = false;}
     }
     @Override
     public void keyTyped(KeyEvent e) {}
 
-    public static String getCurrentKey(){
+    public String getCurrentKey(){
         if(space == true && space_done == false)        return "space";
         else if(right_rotate == true && right_rotate_done == false)   return "right rotate";
         else if(left_rotate == true && left_rotate_done == false)   return "left rotate";
@@ -753,22 +760,17 @@ class GameKeyHandler implements KeyListener{
         else if(down == true)  return "down";
         else                   return "null";
     }
-    public static void changeSpaceState(){
+    public void changeSpaceState(){
         space_done = true;
     }
-    public static void changeLeftRotateState(){
+    public void changeLeftRotateState(){
         left_rotate_done = true;
     }
-    public static void changeRightRotateState(){
+    public void changeRightRotateState(){
         right_rotate_done = true;
     }
 
-    public static void reset(){
-        left = right = down = space = left_rotate = right_rotate = false;
-        space_done = left_rotate_done = right_rotate_done = false;
-    }
-
     // ---------------------------
-    private static boolean left = false, right = false, down = false, space = false, left_rotate = false, right_rotate = false;
-    private static boolean space_done = false, left_rotate_done = false, right_rotate_done;
+    private boolean left = false, right = false, down = false, space = false, left_rotate = false, right_rotate = false;
+    private boolean space_done = false, left_rotate_done = false, right_rotate_done;
 }
