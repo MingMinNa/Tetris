@@ -6,6 +6,7 @@ import State.homeState.*;
 public class Tetris {
     // windows width: FRAME_WIDTH; windows height: FRAME_HEIGHT
     public static final int FRAME_WIDTH = 800, FRAME_HEIGHT = 800;
+    public static boolean unmute = true;
     public static void main(String[] args) throws Exception {
 
         JFrame frame = new JFrame("Tetris");
@@ -16,8 +17,9 @@ public class Tetris {
         frame.setVisible(true);
         
         while(true){
-            new HomeScreen(frame);
-            new GameScreen(frame);
+            unmute = (new HomeScreen(frame, unmute)).unmuteSetting();
+            System.out.println(unmute);
+            new GameScreen(frame, unmute);
         } 
     }
 }

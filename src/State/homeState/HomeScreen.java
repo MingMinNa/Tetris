@@ -2,33 +2,70 @@ package State.homeState;
 
 import javax.swing.*;
 
+import music.MusicPlayer;
+
 import java.awt.*;
 import java.awt.event.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class HomeScreen {
-
-    public HomeScreen(JFrame frame){
-        
-        HomePanel background_panel = new HomePanel();
+    public HomeScreen(JFrame frame, boolean unmute){
+        this.unmute = unmute;
+        HomePanel background_panel = new HomePanel(unmute);
         frame.getContentPane().add(background_panel);
         background_panel.requestFocusInWindow();
 
-        while(background_panel.getHandler().checkEnter() == false){
+        initalMusicPlayer();
+        while(background_panel.getKeyHandler().checkEnter() == false){
+
+            background_panel.enterLabelColorChange();
+            if(background_panel.checkClickSoundIcon())
+            {
+                this.unmute = !this.unmute;
+                initalMusicPlayer();
+            }
             frame.revalidate();
             frame.repaint();
             try{Thread.sleep(25);}
             catch(InterruptedException e){e.printStackTrace();}
-            background_panel.enterLabelColorChange();
         }
+        stopMusicPlayer();
         background_panel.removeAll();
         background_panel.revalidate();
         frame.getContentPane().remove(background_panel);
     }
+    public boolean unmuteSetting(){
+        return this.unmute;
+    }
+    // ----------------
+    private void stopMusicPlayer(){
+        if(music_player != null)
+            music_player.stopPlaying();
+        music_player = null;
+    }
+    private void initalMusicPlayer(){
+        if(music_player != null)
+            stopMusicPlayer();
+        if(unmute) {
+            music_player = new MusicPlayer("HomeState", true);
+            music_player.start();
+        }
+        else {
+            music_player = null;
+        }
+    }
+    
+    private boolean unmute;
+    private MusicPlayer music_player = null;
 }
 class HomePanel extends JPanel{
     public int FRAME_WIDTH = 800, FRAME_HEIGHT = 800;
-    public HomePanel() {
+    
+    public HomePanel(boolean unmute) {
+        this.unmute = unmute;
         setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         setFocusable(true);
         setLayout(null);
@@ -38,15 +75,17 @@ class HomePanel extends JPanel{
         setkeyboardDescription();
         setGameCover();
         setBackground_Img();
+        setSoundIcon();
 
-        handler = new HomeKeyHandler();
-        addKeyListener(handler);
-        addMouseListener(new MouseAdapter() {
+        key_handler = new HomeKeyHandler();
+        addKeyListener(key_handler);
+
+        mouse_handler = new HomeMouseHandler(){
             public void mouseClicked(MouseEvent e) {
                 requestFocusInWindow();
             }
-        });
-        
+        };
+        addMouseListener(mouse_handler);
     }
     public void enterLabelColorChange(){
         int r = enter_game_label.getForeground().getRed();
@@ -57,8 +96,26 @@ class HomePanel extends JPanel{
         r += color_change*5; g += color_change*5; b += color_change*5;
         enter_game_label.setForeground(new Color(r, g, b));
     }
-    public HomeKeyHandler getHandler(){
-        return handler;
+    public HomeKeyHandler getKeyHandler(){
+        return key_handler;
+    }
+    public HomeMouseHandler getMouseHandler(){
+        return mouse_handler;
+    }
+    
+    public boolean checkClickSoundIcon(){
+        int [] sound_icon_range = {5, 5, 75, 75}; // [0]:x_start, [1]:y_start, [2]:x_end, [3]:y_end
+        Point released_point = this.getMouseHandler().getReleased();
+        if(released_point != null &&
+            released_point.getX() >= sound_icon_range[0] && released_point.getX() <= sound_icon_range[2] &&
+            released_point.getY() >= sound_icon_range[1] && released_point.getY() <= sound_icon_range[3])
+        {
+            this.getMouseHandler().resetReleased();
+            unmute = !unmute;
+            changeSoundIcon();
+            return true;
+        }
+        return false;
     }
     // -----------------------
     private JLabel labelMake(int center_x, int center_y, String words){
@@ -74,9 +131,8 @@ class HomePanel extends JPanel{
         label.setVerticalAlignment(JLabel.CENTER);
         return label;
     }
-
     private void setEnterLabel(){
-        enter_game_label = labelMake(400 , 450, "Press Enter to play", 180, 50, 25);
+        enter_game_label = labelMake(400 , 450, "Press Enter to play", 250, 50, 25);
         enter_game_label.setForeground(new Color(255, 255,255));
         // enter_game_label
         add(enter_game_label);
@@ -147,10 +203,30 @@ class HomePanel extends JPanel{
         background_Label2.setIcon(background_img2);
         add(background_Label2);
     }
+    private void setSoundIcon(){
+        sound_icon = labelMake(40, 40, "", 70, 70, 10);
+        sound_icon.setForeground(Color.WHITE);
+        changeSoundIcon();
+        add(sound_icon);
+    }
     
-    private HomeKeyHandler handler = null;
+    private void changeSoundIcon(){
+        final Map<Boolean, ImageIcon> SOUND_ICONS = new HashMap<>(){{
+            put(true, new ImageIcon("img\\unmute.png"));
+            put(false, new ImageIcon("img\\mute.png"));
+        }};
+        sound_icon.setIcon(SOUND_ICONS.get(unmute));
+    }
+
+
+    private HomeKeyHandler key_handler = null;
+    private HomeMouseHandler mouse_handler = null;
+
     private JLabel enter_game_label = null;
     private int color_change = 1;
+
+    private JLabel sound_icon = null;
+    private boolean unmute = true;
 }
 
 class HomeKeyHandler implements KeyListener{
@@ -171,4 +247,29 @@ class HomeKeyHandler implements KeyListener{
     }
     // ---------------------------
     private boolean pressed_enter = false;
+}
+
+class HomeMouseHandler implements MouseListener{
+    @Override
+    public void mouseClicked(MouseEvent e) {}
+    @Override
+    public void mousePressed(MouseEvent e) {}
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        released_point = e.getPoint();
+        System.out.println(released_point);
+    }
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+    @Override
+    public void mouseExited(MouseEvent e) {}
+
+    public Point getReleased(){
+        return released_point;
+    }
+    public void resetReleased(){
+        released_point = null;
+    }
+    // ---------------
+    private Point released_point = null;
 }
