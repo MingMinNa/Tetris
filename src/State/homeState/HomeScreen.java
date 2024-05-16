@@ -31,16 +31,13 @@ class HomePanel extends JPanel{
     public HomePanel() {
         setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         setFocusable(true);
-        setBackground(Color.BLACK);
         setLayout(null);
+        setBackground(Color.BLACK);
 
-        enter_game_label = labelMake(400 , 480, "Press Enter to play", 250, 200, 25);
-        enter_game_label.setForeground(new Color(255, 255,255));
-        // enter_game_label
-        add(enter_game_label);
-
-        keyboardDescription();
-        gameCover();
+        setEnterLabel();
+        setkeyboardDescription();
+        setGameCover();
+        setBackground_Img();
 
         handler = new HomeKeyHandler();
         addKeyListener(handler);
@@ -77,7 +74,14 @@ class HomePanel extends JPanel{
         label.setVerticalAlignment(JLabel.CENTER);
         return label;
     }
-    private void keyboardDescription(){
+
+    private void setEnterLabel(){
+        enter_game_label = labelMake(400 , 450, "Press Enter to play", 180, 50, 25);
+        enter_game_label.setForeground(new Color(255, 255,255));
+        // enter_game_label
+        add(enter_game_label);
+    }
+    private void setkeyboardDescription(){
         // Describe "How to play"
         int x_start = 350;
         int y_start = 550;
@@ -126,11 +130,22 @@ class HomePanel extends JPanel{
         add(move_descrip);
         add(rotate_descrip);
     }
-    private void gameCover(){
+    private void setGameCover(){
         ImageIcon cover = new ImageIcon("img\\cover.png");
-        JLabel coverLabel = labelMake(400, 300, "", 250, 250, 20);
+        JLabel coverLabel = labelMake(400, 270, "", 250, 250, 20);
         coverLabel.setIcon(cover);
         add(coverLabel);
+    }
+    private void setBackground_Img(){
+        ImageIcon background_img1 = new ImageIcon("img\\background_img1.png");
+        JLabel background_Label1 = labelMake(FRAME_WIDTH / 4 + 10, (FRAME_HEIGHT / 3) * 2 + 50, "", FRAME_WIDTH / 2, FRAME_HEIGHT / 2, 20);
+        background_Label1.setIcon(background_img1);
+        add(background_Label1);
+        
+        ImageIcon background_img2 = new ImageIcon("img\\background_img2.png");
+        JLabel background_Label2 = labelMake((FRAME_WIDTH / 4) * 3 - 14, (FRAME_HEIGHT / 3) * 2 + 75, "", FRAME_WIDTH / 2, FRAME_HEIGHT / 2, 20);
+        background_Label2.setIcon(background_img2);
+        add(background_Label2);
     }
     
     private HomeKeyHandler handler = null;

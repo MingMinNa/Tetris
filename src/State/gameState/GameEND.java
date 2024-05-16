@@ -10,10 +10,11 @@ public class GameEND{
         background_panel.add(game_end_panel);
     }
     public void GameEndState(boolean game_over){
+        // game_over = false;
         game_end_panel.requestFocusInWindow();
         game_end_panel.setVisible(true);
-        if(game_over == true)   game_end_panel.setTitle("Game Over", Color.RED);
-        else                    game_end_panel.setTitle("Game Clear", Color.GREEN);
+        if(game_over == true)   game_end_panel.setTitle("Game Over", new Color(139, 69, 19));
+        else                    game_end_panel.setTitle("Game Clear", new Color(192, 255, 62));
         game_end_panel.revalidate();
         game_end_panel.getParent().revalidate();
         game_end_panel.getParent().repaint();
@@ -58,14 +59,14 @@ public class GameEND{
 
 class GameEndPanel extends JPanel{
 
-    public static final int PANEL_WIDTH = 400, PANEL_HEIGHT = 350;
+    public static final int PANEL_WIDTH = 400, PANEL_HEIGHT = 300;
     public GameEndPanel(){
         setBounds(  (GamePanel.FRAME_WIDTH - PANEL_WIDTH) / 2, 
                     (GamePanel.FRAME_HEIGHT - PANEL_HEIGHT) / 2,
                     GameEndPanel.PANEL_WIDTH,
                     GameEndPanel.PANEL_HEIGHT);
         setFocusable(true);
-        setBackground(Color.GRAY);
+        setBackground(new Color(139, 121, 94));
         setLayout(null);
         setVisible(false);
 

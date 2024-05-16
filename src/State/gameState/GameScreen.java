@@ -84,8 +84,6 @@ public class GameScreen {
                         
                         gameLineCheck(game_area_cells);
                         background_panel.cellPositionUpdate(game_area_cells);
-                        if(score >= 10000)
-                            break GAME_END_LABEL;
                     }
                     background_panel.revalidate();
                     frame.revalidate();
