@@ -24,6 +24,7 @@ public class GameScreen {
     public static int GAME_CLEAR_SCORE = 1500;
 
     public GameScreen(JFrame frame, boolean unmute){
+        this.unmute = unmute;
         for(int i = 0; i < game_area_cells.length; i ++){
             for(int j = 0; j < game_area_cells[0].length; j ++){
                 game_area_cells[i][j] = new Cell(j, i, "black");
@@ -50,7 +51,6 @@ public class GameScreen {
         // Remove all the components in the GameScreen
         removePanel(frame);
     }
-
     class GameRunner{
 
         public boolean run(JFrame frame) {
@@ -61,7 +61,7 @@ public class GameScreen {
             int auto_fall_ticks = 0, moval_ticks = 0;
             GAME_END_LABEL:while(true){
                 // If the score reach the requirement to the next state, change the game music and enhance the game level(hardness).
-                if(checkNextGameState()){
+                if(checkNextGameState() && unmute){
                     if(music_player != null){music_player.stopPlaying();}
                     music_player = new MusicPlayer("GameState" + Integer.toString(current_speedup_state), true);
                     music_player.start();
@@ -308,6 +308,7 @@ public class GameScreen {
     // Game_state_data
     private int current_speedup_state = 0; 
     private int score = 0;
+    private boolean unmute;
 
     private boolean checkNextGameState(){
         boolean next_state = false; 
