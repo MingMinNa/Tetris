@@ -316,6 +316,7 @@ public class GameScreen {
         while(GAME_SPEEDUP_STATE_SCORE[current_speedup_state] >= 0 && score >= GAME_SPEEDUP_STATE_SCORE[current_speedup_state]){
             current_speedup_state = current_speedup_state + 1;
             next_state = true;
+            background_panel.stateDisplayUpdate(current_speedup_state);
         }
         return next_state;
     }
@@ -465,6 +466,13 @@ class GamePanel extends JPanel{
                 requestFocusInWindow();
             }
         });
+    }
+    public void stateDisplayUpdate(int state){
+        if(state_display != null)   this.remove(state_display);
+        int display_x = PREVIEW_AREA_X + (PREVIEW_AREA_X_CNT / 2 - 1) * Cell.BLOCK_WIDTH + PREVIEW_AREA_X_CNT, display_y = 670;
+        state_display = labelMake(display_x, display_y, "State " + state, 250, 60, 40);
+        state_display.setForeground(Color.WHITE);
+        add(state_display);
     }
     public void scoreDisplayUpdate(int score){
         // refresh
@@ -712,8 +720,9 @@ class GamePanel extends JPanel{
     private static JLabel [][] label_cells = new JLabel[GAME_AREA_Y_CNT][GAME_AREA_X_CNT];
     private static JLabel [][] label_preview = new JLabel[PREVIEW_AREA_Y_CNT - 2][PREVIEW_AREA_X_CNT - 2];
     
-    private GameEND game_end_panel;
-    private GameKeyHandler handler;
+    private GameEND game_end_panel = null;
+    private GameKeyHandler handler = null;
+    private JLabel state_display = null;
 }
 
 
