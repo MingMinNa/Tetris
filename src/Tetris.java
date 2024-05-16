@@ -18,7 +18,6 @@ public class Tetris {
         
         while(true){
             unmute = (new HomeScreen(frame, unmute)).unmuteSetting();
-            System.out.println(unmute);
             new GameScreen(frame, unmute);
         } 
     }

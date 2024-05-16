@@ -257,7 +257,6 @@ class HomeMouseHandler implements MouseListener{
     @Override
     public void mouseReleased(MouseEvent e) {
         released_point = e.getPoint();
-        System.out.println(released_point);
     }
     @Override
     public void mouseEntered(MouseEvent e) {}
