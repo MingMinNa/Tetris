@@ -23,12 +23,13 @@ public class GameEND{
             Point pressed_point = game_end_panel.getHandler().getPressed();
             if(checkTouchButton(released_point))
                 break;
-            else if (checkTouchButton(pressed_point)){
-                // System.out.println("Hello");
-            }
-            try {Thread.sleep(50);} 
+            setButtonState(pressed_point);
+            try {Thread.sleep(20);} 
             catch (InterruptedException e) {e.printStackTrace();}
         }
+        setButtonState(null);
+        try {Thread.sleep(20);} 
+        catch (InterruptedException e) {e.printStackTrace();}
     }
     // -----------------------------------
     private boolean checkTouchButton(Point touch_point){
@@ -38,6 +39,19 @@ public class GameEND{
         touch_point.getY() >= button_range[1] && touch_point.getY() <= button_range[3])
             return true;
         return false;
+    }
+    private void setButtonState(Point pressed_point){
+        Object [] button_panel_objects = game_end_panel.getButtonObjects();
+        Color [] object_color = {Color.WHITE, Color.BLACK};
+        if(checkTouchButton(pressed_point)){
+            object_color[0] = Color.BLACK;
+            object_color[1] = Color.WHITE;
+        }
+        
+        if(button_panel_objects[0] instanceof JPanel)
+            ((JPanel)button_panel_objects[0]).setBackground(object_color[0]);
+        if(button_panel_objects[1] instanceof JLabel)
+            ((JLabel)button_panel_objects[1]).setForeground(object_color[1]);
     }
     private GameEndPanel game_end_panel;
 }
@@ -64,6 +78,7 @@ class GameEndPanel extends JPanel{
         };
         addMouseListener(game_end_handler);
     }
+
     public void setTitle(String title, Color color){
         JLabel title_label = labelMake(GameEndPanel.PANEL_WIDTH / 2, GameEndPanel.PANEL_HEIGHT / 2 - 40, title, 400, 300, 50);
         title_label.setForeground(color);
@@ -74,6 +89,9 @@ class GameEndPanel extends JPanel{
     }
     public GameEndHandler getHandler(){
         return game_end_handler;
+    }
+    public Object [] getButtonObjects(){
+        return button_panel_object;
     }
     // ---------------------------------
     private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height, int font_size){
@@ -94,6 +112,9 @@ class GameEndPanel extends JPanel{
         continue_button_panel.add(continue_button_text);
         add(continue_button_panel);
 
+        button_panel_object[0] = continue_button_panel;
+        button_panel_object[1] = continue_button_text;
+
         continue_button_range[0] = (PANEL_WIDTH - button_panel_width) / 2;
         continue_button_range[2] = continue_button_range[0] + button_panel_width;
         continue_button_range[1] = (PANEL_HEIGHT - button_panel_height) / 2 + 50;
@@ -102,6 +123,7 @@ class GameEndPanel extends JPanel{
     
     private int continue_button_range[] = new int[4]; // [0]:x_start, [1]:y_start, [2]:x_end, [3]:y_end
     private GameEndHandler game_end_handler;
+    private Object button_panel_object[] = new Object[2]; // [0]:panel, [1]:text
 }
 
 class GameEndHandler implements MouseListener{
