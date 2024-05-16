@@ -45,13 +45,7 @@ public class GameScreen {
 
         // after building the component, change control to GameRunner
         boolean game_over = new GameRunner().run(frame);
-        if (game_over){
-            System.out.println("Game over");
-            // new GameEND(frame, game_over, background_panel);
-        }
-        else{
-            System.out.println("Game clear");
-        }
+        background_panel.getGameEndPanel().GameEndState(game_over);
         
         // Remove all the components in the GameScreen
         removePanel(frame);
@@ -153,7 +147,7 @@ public class GameScreen {
             }
             if(music_player != null)
                 music_player.stopPlaying();
-            GameKeyHandler.resetSetting();
+            GameKeyHandler.reset();
             return game_over; // true: game_over, false: game_clear
         }
 
@@ -276,10 +270,9 @@ public class GameScreen {
             List<Integer> current_cells_pos = new ArrayList<>();
             for(int i = 0; i < 4; i++){
                 // 100 * x + y
-                // System.out.println(100 * current_cells[i].getX() + current_cells[i].getY());
                 current_cells_pos.add(100 * current_cells[i].getX() + current_cells[i].getY());
             }
-            // System.out.println("---------------------------------------");
+
             boolean rotate = true;
             int center_x = current_block.getCenterX(), center_y = current_block.getCenterY();
             for(int i = 0; i < 4; i++){
@@ -290,12 +283,10 @@ public class GameScreen {
                 }
                 if(next_x < 0){
                     if(tryMove("right") == false)   return false;
-                    // tryMove("right");
                     return checkRotate(current_block,current_cells,game_area_cells,direction);
                 }
                 else if(next_x >= GamePanel.GAME_AREA_X_CNT){
                     if(tryMove("left") == false) return false;
-                    // tryMove("left");
                     return checkRotate(current_block,current_cells,game_area_cells,direction);
                 }
                 if(current_cells_pos.contains(100 * (next_x) + next_y) == false && game_area_cells[next_y][next_x].getColor().equals("black") == false){
@@ -315,7 +306,7 @@ public class GameScreen {
     private GameBlock current_block = null;
     private Cell [] current_cells =  new Cell[4];
 
-    // Game
+    // Game_state_data
     private int current_speedup_state = 0; 
     private int score = 0;
 
@@ -463,6 +454,8 @@ class GamePanel extends JPanel{
         setBackground(Color.BLACK);
         setLayout(null);
 
+        game_end_panel = new GameEND(this);
+        
         buildBoard();
         addKeyListener(new GameKeyHandler());
         addMouseListener(new MouseAdapter() {
@@ -638,6 +631,10 @@ class GamePanel extends JPanel{
         }
         this.revalidate();
     }
+    
+    public GameEND getGameEndPanel(){
+        return this.game_end_panel;
+    }
     // --------------------------------------
     private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height){
         return labelMake(center_x, center_y, words, words_width, words_height, 20);
@@ -709,6 +706,7 @@ class GamePanel extends JPanel{
     private static JLabel [][] label_score_display = new JLabel[5][15]; // int score_height_cnt = 5, score_witdh_cnt = 15;
     private static JLabel [][] label_cells = new JLabel[GAME_AREA_Y_CNT][GAME_AREA_X_CNT];
     private static JLabel [][] label_preview = new JLabel[PREVIEW_AREA_Y_CNT - 2][PREVIEW_AREA_X_CNT - 2];
+    private GameEND game_end_panel;
 }
 
 
@@ -765,7 +763,7 @@ class GameKeyHandler implements KeyListener{
         right_rotate_done = true;
     }
 
-    public static void resetSetting(){
+    public static void reset(){
         left = right = down = space = left_rotate = right_rotate = false;
         space_done = left_rotate_done = right_rotate_done = false;
     }
