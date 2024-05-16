@@ -1,7 +1,7 @@
 import javax.swing.*;
 
-import State.gameState.GameScreen;
-import State.homeState.HomeScreen;
+import State.gameState.*;
+import State.homeState.*;
 
 public class Tetris {
     // windows width: FRAME_WIDTH; windows height: FRAME_HEIGHT
@@ -11,6 +11,7 @@ public class Tetris {
         JFrame frame = new JFrame("Tetris");
         frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
         frame.setResizable(false);
+        frame.setLayout(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         

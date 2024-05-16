@@ -11,7 +11,6 @@ import music.MusicPlayer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.function.*;
@@ -46,9 +45,9 @@ public class GameScreen {
 
         // after building the component, change control to GameRunner
         boolean game_over = new GameRunner().run(frame);
-        //
         if (game_over){
             System.out.println("Game over");
+            // new GameEND(frame, game_over, background_panel);
         }
         else{
             System.out.println("Game clear");
@@ -459,7 +458,7 @@ class GamePanel extends JPanel{
             String color = GameBlock.COLOR_LIST.get(i);
             cell_img.put(color, new ImageIcon("img\\" + color + ".jpg"));
         }
-        setPreferredSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
+        setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         setFocusable(true);
         setBackground(Color.BLACK);
         setLayout(null);

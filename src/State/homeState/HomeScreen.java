@@ -29,7 +29,7 @@ public class HomeScreen {
 class HomePanel extends JPanel{
     public int FRAME_WIDTH = 800, FRAME_HEIGHT = 800;
     public HomePanel() {
-        setPreferredSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
+        setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         setFocusable(true);
         setBackground(Color.BLACK);
         setLayout(null);
