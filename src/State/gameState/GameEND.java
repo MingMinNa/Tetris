@@ -19,17 +19,18 @@ public class GameEND{
         game_end_panel.getParent().revalidate();
         game_end_panel.getParent().repaint();
 
+        boolean pressed_button = false;
         while(true){
             Point released_point = game_end_panel.getHandler().getReleased();
             Point pressed_point = game_end_panel.getHandler().getPressed();
-            if(checkTouchButton(released_point))
+            if(checkTouchButton(released_point) && pressed_button)
                 break;
-            setButtonState(pressed_point);
+            pressed_button = setButtonState(pressed_point);
             try {Thread.sleep(20);} 
             catch (InterruptedException e) {e.printStackTrace();}
         }
         setButtonState(null);
-        try {Thread.sleep(20);} 
+        try {Thread.sleep(100);} 
         catch (InterruptedException e) {e.printStackTrace();}
     }
     // -----------------------------------
@@ -41,18 +42,21 @@ public class GameEND{
             return true;
         return false;
     }
-    private void setButtonState(Point pressed_point){
+    private boolean setButtonState(Point pressed_point){
         Object [] button_panel_objects = game_end_panel.getButtonObjects();
         Color [] object_color = {Color.WHITE, Color.BLACK};
+        boolean pressed = false;
         if(checkTouchButton(pressed_point)){
             object_color[0] = Color.BLACK;
             object_color[1] = Color.WHITE;
+            pressed = true;
         }
         
         if(button_panel_objects[0] instanceof JPanel)
             ((JPanel)button_panel_objects[0]).setBackground(object_color[0]);
         if(button_panel_objects[1] instanceof JLabel)
             ((JLabel)button_panel_objects[1]).setForeground(object_color[1]);
+        return pressed;
     }
     private GameEndPanel game_end_panel;
 }
@@ -133,6 +137,7 @@ class GameEndHandler implements MouseListener{
     @Override
     public void mousePressed(MouseEvent e) {
         pressed_point = e.getPoint();
+        released_point = null;
     }
     @Override
     public void mouseReleased(MouseEvent e) {
