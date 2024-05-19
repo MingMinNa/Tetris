@@ -15,8 +15,10 @@ public class Tetris {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         
+        // default sound mode (The default mode is unmute mode)
         boolean unmute = true;
         while(true){
+            // check the sound icon => set the mode back to unmute (unmute mode or mute mode)
             unmute = (new HomeScreen(frame, unmute)).unmuteSetting();
             new GameScreen(frame, unmute);
         } 

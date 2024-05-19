@@ -46,11 +46,13 @@ public class GameScreen {
 
         // after building the component, change control to GameRunner
         boolean game_over = new GameRunner().run(frame);
+        
         background_panel.getGameEndPanel().GameEndState(game_over);
 
         // Remove all the components in the GameScreen
         removePanel(frame);
     }
+    // inner class
     class GameRunner{
 
         public boolean run(JFrame frame) {
@@ -151,46 +153,41 @@ public class GameScreen {
         }
 
         private boolean tryMove(String direction){
-            if(direction.equals("down")){
-                if(checkMove(current_cells, game_area_cells, direction)){
-                    for(int i = 0; i < 4; i ++ ){
-                        Cell cell = current_cells[i];
-                        game_area_cells[cell.getY() + 1][cell.getX()].setColor(cell.getColor());
-                        game_area_cells[cell.getY()][cell.getX()].setColor("black");
-                        current_cells[i] = game_area_cells[cell.getY() + 1][cell.getX()];
-                    }
-                    current_block.setBlockCenter(current_block.getCenterX(), current_block.getCenterY() + 1);
-                    return true;
+            if (direction.equals("down") &&
+                checkMove(current_cells, game_area_cells, direction)){
+                for(int i = 0; i < 4; i ++ ){
+                    Cell cell = current_cells[i];
+                    game_area_cells[cell.getY() + 1][cell.getX()].setColor(cell.getColor());
+                    game_area_cells[cell.getY()][cell.getX()].setColor("black");
+                    current_cells[i] = game_area_cells[cell.getY() + 1][cell.getX()];
                 }
+                current_block.setBlockCenter(current_block.getCenterX(), current_block.getCenterY() + 1);
+                return true;
             }
-            else if(direction == "left"){
-                if(checkMove(current_cells, game_area_cells, direction)){
-
-                    for(int i = 0; i < 4; i ++ ){
-                        Cell cell = current_cells[i];
-                        game_area_cells[cell.getY()][cell.getX() - 1].setColor(cell.getColor());
-                        game_area_cells[cell.getY()][cell.getX()].setColor("black");
-                        current_cells[i] = game_area_cells[cell.getY()][cell.getX() - 1];
-                    }
-                    current_block.setBlockCenter(current_block.getCenterX() - 1, current_block.getCenterY());
-                    return true;
+            else if(direction.equals("left") && 
+                    checkMove(current_cells, game_area_cells, direction)){
+                for(int i = 0; i < 4; i ++ ){
+                    Cell cell = current_cells[i];
+                    game_area_cells[cell.getY()][cell.getX() - 1].setColor(cell.getColor());
+                    game_area_cells[cell.getY()][cell.getX()].setColor("black");
+                    current_cells[i] = game_area_cells[cell.getY()][cell.getX() - 1];
                 }
+                current_block.setBlockCenter(current_block.getCenterX() - 1, current_block.getCenterY());
+                return true;
             }
-            else if(direction == "right"){
-                if(checkMove(current_cells, game_area_cells, direction)){
-                    for(int i = 3; i >= 0; i -- ){
-                        Cell cell = current_cells[i];
-                        game_area_cells[cell.getY()][cell.getX() + 1].setColor(cell.getColor());
-                        game_area_cells[cell.getY()][cell.getX()].setColor("black");
-                        current_cells[i] = game_area_cells[cell.getY()][cell.getX() + 1];
-                    }
-                    current_block.setBlockCenter(current_block.getCenterX() + 1, current_block.getCenterY());
-                    return true;
+            else if(direction.equals("right") && 
+                    checkMove(current_cells, game_area_cells, direction)){
+                for(int i = 3; i >= 0; i -- ){
+                    Cell cell = current_cells[i];
+                    game_area_cells[cell.getY()][cell.getX() + 1].setColor(cell.getColor());
+                    game_area_cells[cell.getY()][cell.getX()].setColor("black");
+                    current_cells[i] = game_area_cells[cell.getY()][cell.getX() + 1];
                 }
+                current_block.setBlockCenter(current_block.getCenterX() + 1, current_block.getCenterY());
+                return true;
             }
             return false;
         }
-
         private void tryRotate(String direction){
             if(checkRotate(current_block, current_cells, game_area_cells, direction)){
 
@@ -297,19 +294,6 @@ public class GameScreen {
     }
 
     // ----------------------------------------
-    private long last_update_time = System.currentTimeMillis();
-    private GamePanel background_panel;
-
-    private Cell [][] game_area_cells = new Cell[23][10];
-    private GameBlock [] preview_blocks = new GameBlock[2];
-    private GameBlock current_block = null;
-    private Cell [] current_cells =  new Cell[4];
-
-    // Game_state_data
-    private int current_speedup_state = 0; 
-    private int score = 0;
-    private boolean unmute;
-
     private boolean checkNextGameState(){
         boolean next_state = false; 
         while(GAME_SPEEDUP_STATE_SCORE[current_speedup_state] >= 0 && score >= GAME_SPEEDUP_STATE_SCORE[current_speedup_state]){
@@ -432,6 +416,19 @@ public class GameScreen {
         frame.revalidate();
         frame.repaint();
     }
+
+    private long last_update_time = System.currentTimeMillis();
+    private GamePanel background_panel;
+
+    private Cell [][] game_area_cells = new Cell[23][10];
+    private GameBlock [] preview_blocks = new GameBlock[2];
+    private GameBlock current_block = null;
+    private Cell [] current_cells =  new Cell[4];
+
+    // Game_state_data
+    private int current_speedup_state = 0; 
+    private int score = 0;
+    private boolean unmute;
 }
 
 class GamePanel extends JPanel{
@@ -729,6 +726,7 @@ class GameKeyHandler implements KeyListener{
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
+        // key press priority
         if(code == KeyEvent.VK_SPACE && space_done == false){ // space
             space = true;
         }

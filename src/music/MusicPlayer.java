@@ -44,18 +44,23 @@ public class MusicPlayer extends Thread {
     }
     public void stopPlaying(){
         is_playing = false;
+        // wait until the player is ready
+        // or it will close prematurely before the "player = new Player()", this will raise error
         while(!ready){
             try{Thread.sleep(100);}
             catch(InterruptedException e){
                 e.printStackTrace();
             }
         }
+        // player is ready, then close it
         player.close();
     }
     // -----------------------------
     private String mp3_file_path;
     private Player player;
     private boolean is_playing, repeat, ready;
+    
+    // mp3 file path
     private final Map<String, String> state_music = new HashMap<>(){{
         put("GameState1", "sound\\GameState1.mp3");
         put("GameState2", "sound\\GameState2.mp3");

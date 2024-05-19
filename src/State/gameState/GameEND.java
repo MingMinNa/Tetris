@@ -26,6 +26,7 @@ public class GameEND{
             if(checkTouchButton(released_point) && pressed_button)
                 break;
             pressed_button = setButtonState(pressed_point);
+            // add little delay to prevent error
             try {Thread.sleep(20);} 
             catch (InterruptedException e) {e.printStackTrace();}
         }

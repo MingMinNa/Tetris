@@ -13,10 +13,10 @@ import java.util.Map;
 
 public class HomeScreen {
     public HomeScreen(JFrame frame, boolean unmute){
-        this.unmute = unmute;
         HomePanel background_panel = new HomePanel(unmute);
         frame.getContentPane().add(background_panel);
         background_panel.requestFocusInWindow();
+        this.unmute = unmute;
 
         initalMusicPlayer();
         while(background_panel.getKeyHandler().checkEnter() == false){
@@ -43,27 +43,27 @@ public class HomeScreen {
     }
     // ----------------
     private void stopMusicPlayer(){
+        // stop the player if the player isn't null
         if(music_player != null)
             music_player.stopPlaying();
         music_player = null;
     }
+    
     private void initalMusicPlayer(){
-        if(music_player != null)
-            stopMusicPlayer();
+        // start the player or not (based on sound mode)
+        if(music_player != null) stopMusicPlayer();
         if(unmute) {
             music_player = new MusicPlayer("HomeState", true);
             music_player.start();
         }
-        else {
-            music_player = null;
-        }
+        else music_player = null;
     }
     
     private boolean unmute;
     private MusicPlayer music_player = null;
 }
 class HomePanel extends JPanel{
-    public int FRAME_WIDTH = 800, FRAME_HEIGHT = 800;
+    public static final int FRAME_WIDTH = 800, FRAME_HEIGHT = 800;
     
     public HomePanel(boolean unmute) {
         this.unmute = unmute;
@@ -89,6 +89,7 @@ class HomePanel extends JPanel{
         addMouseListener(mouse_handler);
     }
     public void enterLabelColorChange(){
+        // this function makes the enter_game_label flashing
         int r = enter_game_label.getForeground().getRed();
         int g = enter_game_label.getForeground().getGreen();
         int b = enter_game_label.getForeground().getBlue();
