@@ -14,6 +14,7 @@ public class MusicPlayer extends Thread {
     public MusicPlayer(String current_state, boolean repeat) {
         this.mp3_file_path = state_music.get(current_state);
         this.repeat = repeat;
+        this.ready = false;
     }
     @Override
     public void run() {
@@ -34,19 +35,27 @@ public class MusicPlayer extends Thread {
         try {
             FileInputStream file_input_stream = new FileInputStream(mp3_file_path);
             player = new Player(file_input_stream);
+            ready = true;
             player.play();
+            
         } catch (FileNotFoundException | JavaLayerException e) {
             e.printStackTrace();
         }
     }
     public void stopPlaying(){
         is_playing = false;
+        while(!ready){
+            try{Thread.sleep(100);}
+            catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
         player.close();
     }
     // -----------------------------
     private String mp3_file_path;
     private Player player;
-    private boolean is_playing, repeat;
+    private boolean is_playing, repeat, ready;
     private final Map<String, String> state_music = new HashMap<>(){{
         put("GameState1", "sound\\GameState1.mp3");
         put("GameState2", "sound\\GameState2.mp3");

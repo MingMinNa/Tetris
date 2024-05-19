@@ -19,9 +19,9 @@ import java.util.function.*;
 
 public class GameScreen { 
     public static int time_ticks = 50;
-    public static final int GAME_SPEEDUP_STATE_SCORE[] = {0, 100, 200, -1}; // the score required into the next state
-    public static final int GAME_STATE_AUTO_FALL_TICK[] = {0, 6, 4, 2}; // change required auto-fall tick number to satisfy the speedup function
-    public static int GAME_CLEAR_SCORE = 1500;
+    public static final int GAME_SPEEDUP_STATE_SCORE[] = {0, 500, 1000, -1}; // the score required into the next state
+    public static final int GAME_STATE_AUTO_FALL_TICK[] = {0, 6, 4, 3}; // change required auto-fall tick number to satisfy the speedup function
+    public static int GAME_CLEAR_SCORE = 1300;
 
     public GameScreen(JFrame frame, boolean unmute){
         this.unmute = unmute;

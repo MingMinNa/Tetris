@@ -32,6 +32,7 @@ public class HomeScreen {
             try{Thread.sleep(25);}
             catch(InterruptedException e){e.printStackTrace();}
         }
+        
         stopMusicPlayer();
         background_panel.removeAll();
         background_panel.revalidate();
