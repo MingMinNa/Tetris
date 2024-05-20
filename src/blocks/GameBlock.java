@@ -120,7 +120,7 @@ public class GameBlock {
 *  * x o x * *      * * o * * *     * x o x * *     * * o * * * 
 *  * * * * * *      * * x * * *     * * * x * *     * x x * * * 
 
-*  J block
+*  L block
 *  5-0              5-1             5-2             5-3 
 *  * * * x * *      * * x * * *     * * * * * *     * x x * * *
 *  * x o x * *      * * o * * *     * x o x * *     * * o * * * 
