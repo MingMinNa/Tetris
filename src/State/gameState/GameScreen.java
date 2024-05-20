@@ -391,11 +391,21 @@ public class GameScreen {
             }
             // there exist at least one grid(cell) empty(color:black).
             if(all_filled == false){
-                for(int j = 0; j < game_area_cells[0].length; j++)
+                for(int j = 0; j < game_area_cells[0].length; j++){
                     game_area_cells[i + del_line][j].setColor(game_area_cells[i][j].getColor());
+                    if(del_line != 0)
+                        game_area_cells[i][j].setColor("black");
+                }
             }
-            else
+            else{
+                for(int j = 0; j < game_area_cells[0].length; j++){
+                    game_area_cells[i][j].setColor("black");
+                    background_panel.cellPositionUpdate(game_area_cells);
+                    try {Thread.sleep(50);}
+                    catch(InterruptedException e) {e.printStackTrace();}
+                }
                 del_line++;
+            }
         }
         if(del_line == 0)   return;
 
