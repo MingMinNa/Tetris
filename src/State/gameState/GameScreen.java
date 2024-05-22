@@ -64,7 +64,7 @@ public class GameScreen {
             GAME_END_LABEL:while(true){
                 // If the score reach the requirement to the next state, change the game music and enhance the game level(hardness).
                 if(checkNextGameState() && unmute){
-                    if(music_player != null){music_player.stopPlaying();}
+                    if(music_player != null){music_player.stopPlaying(); music_player.interrupt();}
                     music_player = new MusicPlayer("GameState" + Integer.toString(current_speedup_state), true);
                     music_player.start();
                 }
@@ -92,6 +92,7 @@ public class GameScreen {
                     frame.repaint();
                 }
                 else if(delta_time >= time_ticks){
+                    background_panel.stateColorChange(current_speedup_state);
                     auto_fall_ticks++;
                     moval_ticks++;
                     last_update_time = current_time;
@@ -147,7 +148,7 @@ public class GameScreen {
                 }
             }
             if(music_player != null)
-                music_player.stopPlaying();
+                {music_player.stopPlaying(); music_player.interrupt();}
 
             return game_over; // true: game_over, false: game_clear
         }
@@ -478,12 +479,34 @@ class GamePanel extends JPanel{
         });
     }
     public void stateDisplayUpdate(int state){
-        Color state_color[] = {null, Color.WHITE, Color.GRAY, Color.BLUE};
         if(state_display != null)   this.remove(state_display);
         int display_x = X_START + 6 * Cell.BLOCK_WIDTH, display_y = 40; 
         state_display = labelMake(display_x, display_y, "--- State " + state + " ---", 250, 60, 40);
-        state_display.setForeground(state_color[state]);
+        state_display.setForeground(Color.RED);
         add(state_display);
+    }
+    public void stateColorChange(int current_state){
+        int new_color[] = {state_display.getForeground().getRed(),
+                        state_display.getForeground().getGreen(),
+                        state_display.getForeground().getBlue()}; // color[0]:red, color[1]: green, color[2]:blue
+
+        int delta_value = 5*current_state;
+        int increment_index = 0, decrement_index = 0;
+        // if(new_color[0] > 0 && new_color[2] == 0)   { decrement_index = 0; increment_index = 1;}
+        // else if( new_color[0] == 0 && new_color[1] > 0) { decrement_index = 1; increment_index = 2;}
+        // else { decrement_index = 2; increment_index = 0;}
+        for(int i = 0; i < 3;i ++){
+            // for i = 0, 1, 2, one of the conditions must be true
+            if(new_color[i] > 0 && new_color[(i + 2) % 3] == 0 ){
+                decrement_index = i; increment_index = (i + 1) % 3;
+                break;
+            }
+        }
+        new_color[increment_index] += delta_value;
+        new_color[decrement_index] -= delta_value;
+        if(new_color[increment_index] > 255) new_color[increment_index] = 255;
+        if(new_color[decrement_index] < 0) new_color[decrement_index] = 0;
+        state_display.setForeground(new Color(new_color[0], new_color[1], new_color[2]));
     }
     public void scoreDisplayUpdate(int score){
         // refresh

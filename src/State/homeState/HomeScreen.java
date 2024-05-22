@@ -45,7 +45,7 @@ public class HomeScreen {
     private void stopMusicPlayer(){
         // stop the player if the player isn't null
         if(music_player != null)
-            music_player.stopPlaying();
+            {music_player.stopPlaying(); music_player.interrupt();}
         music_player = null;
     }
     
@@ -53,7 +53,7 @@ public class HomeScreen {
         // start the player or not (based on sound mode)
         if(music_player != null) stopMusicPlayer();
         if(unmute) {
-            music_player = new MusicPlayer("HomeState", true);
+            music_player = new MusicPlayer("HomeState", false);
             music_player.start();
         }
         else music_player = null;
