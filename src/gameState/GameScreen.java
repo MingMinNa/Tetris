@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.function.*;
 
 public class GameScreen { 
-    public static int time_ticks = 50;
+    public static final int time_ticks = 80;
     public static final int GAME_STATE_SCORE[] = {0, 500, 1000, -1}; // the score required into the next state
 
     public GameScreen(JFrame frame){
@@ -46,15 +46,21 @@ public class GameScreen {
 
     class GameRunner{
         static boolean game_over = false;
+        private static boolean keyPressed = false;
 
         public void run(JFrame frame) {
             MusicPlayer music_player = null;
             // auto_fall_ticks is for auto-fall; moval_time_ticks is for left, right and down
             // auto-fall_time_ticks = 6 * time_ticks, moval_time_ticks = 2 * time_ticks
             int auto_fall_ticks = 0, moval_ticks = 0;
+            int time_ticks_temp = time_ticks;
             while(true){
                 // If the score reach the requirement to the next state, change the game music and enhance the game level(hardness).
                 if(checkNextGameState()){
+
+                    //  ***** increase speed *****
+                    time_ticks_temp -= 15;
+
                     if(music_player != null){music_player.stopPlaying();}
                     music_player = new MusicPlayer("GameState" + Integer.toString(current_state), true);
                     music_player.start();
@@ -136,10 +142,41 @@ public class GameScreen {
 
                 if(game_over == true)    break;
             }
+
+            // ****** GAME OVER Panel ******
+            if(game_over == true){
+
+                //frame.remove(background_panel);
+                if(music_player != null)
+                    music_player.stopPlaying();
+                background_panel.setBackground(Color.WHITE);
+                background_panel.buildEndPanel();
+
+                KeyAdapter keyAdapter = new KeyAdapter() {
+                    @Override
+                    public void keyPressed(KeyEvent e) {
+                        keyPressed = true;
+                    }
+                };
+                frame.addKeyListener(keyAdapter);
+                frame.setFocusable(true);
+                frame.requestFocusInWindow();
+                frame.setVisible(true);
+
+                while (!keyPressed) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
             if(music_player != null)
                 music_player.stopPlaying();
             GameKeyHandler.resetSetting();
             game_over = false;
+            keyPressed = false;
             // Remove all the components in the GameScreen
             removePanel(frame);
         }
@@ -396,6 +433,7 @@ public class GameScreen {
     }
     private void gameLineCheck(Cell [][] game_area_cells){
         int del_line = 0;
+        MusicPlayer deleteLine_Music = null;
         for(int i = game_area_cells.length - 1; i > 1; i--){
             boolean all_filled = true;
             // check whether the line is filled with blocks_cells
@@ -407,8 +445,16 @@ public class GameScreen {
                 for(int j = 0; j < game_area_cells[0].length; j++)
                     game_area_cells[i + del_line][j].setColor(game_area_cells[i][j].getColor());
             }
-            else
+            else {
                 del_line++;
+
+                // ****** add deleteLine Music ******
+                if(deleteLine_Music != null){
+                    deleteLine_Music.stopPlaying();
+                }
+                deleteLine_Music = new MusicPlayer("deleteLine_Music", false);
+                deleteLine_Music.start();
+            }
         }
         int current_score = background_panel.getScore();
 
@@ -444,7 +490,7 @@ class GamePanel extends JPanel{
         // load all color cell into the cell_img map
         for(int i = 0;i < GameBlock.COLOR_LIST.size();i++){
             String color = GameBlock.COLOR_LIST.get(i);
-            cell_img.put(color, new ImageIcon("img\\" + color + ".jpg"));
+            cell_img.put(color, new ImageIcon("img/" + color + ".jpg"));
         }
 
         score = 0;
@@ -526,12 +572,12 @@ class GamePanel extends JPanel{
         int type = blocks[0].getBlockType();
         for(int i = 0; i < 4;i ++){
             label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setVisible(true);
-            label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img\\" + blocks[0].getColor() + ".jpg"));
+            label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img/" + blocks[0].getColor() + ".jpg"));
         }
         type = blocks[1].getBlockType();
         for(int i = 0; i < 4;i ++){
             label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setVisible(true);
-            label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img\\" + blocks[1].getColor() + ".jpg"));
+            label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img/" + blocks[1].getColor() + ".jpg"));
         }
         this.revalidate();
     }
@@ -539,6 +585,7 @@ class GamePanel extends JPanel{
     public void setScore(int new_score){
         score = new_score;
         scoreDisplayUpdate();
+        stateLabelUpdate();
     }
     // --------------------------------------
     private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height){
@@ -704,10 +751,49 @@ class GamePanel extends JPanel{
         return;
     }
 
+    //   ****** build/update state label ******
+    private void stateLabelUpdate(){
+        int state_label_x = PREVIEW_AREA_X + (PREVIEW_AREA_X_CNT / 2 - 1) * Cell.BLOCK_WIDTH + PREVIEW_AREA_X_CNT, state_label_y = 95;
+        String state = "--- State 1 ---";
+        if(score < 500){
+            state = "--- State 1 ---";
+        }
+        else if(score >= 500 && score < 1000){
+            state = "--- State 2 ---";
+        }
+        else if(score >= 1000){
+            state = "--- State 3 ---";
+        }
+
+        if (currentStateLabel != null) {
+            this.remove(currentStateLabel);
+        }
+
+        currentStateLabel = labelMake(state_label_x, state_label_y, state, 120, 60, 15);
+        currentStateLabel.setForeground(Color.WHITE);
+        this.add(currentStateLabel);
+    }
+
+    public void buildEndPanel(){
+        int end_label_x = 375, end_label_y = 350;
+        JLabel endPanel = labelMake(end_label_x, end_label_y, "GAME OVER", 700, 400, 85);
+
+        endPanel.setForeground(Color.RED);
+
+        endPanel.setVisible(true);
+
+        this.add(endPanel);
+        this.setComponentZOrder(endPanel, 0);
+        this.revalidate();
+        this.repaint();
+    }
+
     private int score;
     private static JLabel [][] label_score_display = new JLabel[5][15]; // int score_height_cnt = 5, score_witdh_cnt = 15;
     private static JLabel [][] label_cells = new JLabel[GAME_AREA_Y_CNT][GAME_AREA_X_CNT];
     private static JLabel [][] label_preview = new JLabel[PREVIEW_AREA_Y_CNT - 2][PREVIEW_AREA_X_CNT - 2];
+
+    private JLabel currentStateLabel = null;
 }
 
 
@@ -718,10 +804,10 @@ class GameKeyHandler implements KeyListener{
         if(code == 32 && space_done == false){ // space
             space = true;
         }
-        else if(code == 65 && left_rotate_done == false){ // A is left rotate
+        else if((code == 65 || code == 97) && left_rotate_done == false){ // A is left rotate      // increase 'a'
             left_rotate = true;
         }
-        else if(code == 68 && right_rotate_done == false){ // D is right rotate 
+        else if((code == 68 || code == 100) && right_rotate_done == false){ // D is right rotate   // increase 'd'
             right_rotate = true;
             right_rotate_done = false;
         }
@@ -739,8 +825,8 @@ class GameKeyHandler implements KeyListener{
         if(code == 39)  right = false;
         if(code == 40)  down = false;
         if(code == 32){  space = false; space_done = false;}
-        if(code == 65){  left_rotate = false; left_rotate_done = false;}
-        if(code == 68){  right_rotate = false; right_rotate_done = false;}
+        if(code == 65 || code == 97){  left_rotate = false; left_rotate_done = false;}          // increase 'a'
+        if(code == 68 || code == 100){  right_rotate = false; right_rotate_done = false;}       // increase 'd'
     }
     @Override
     public void keyTyped(KeyEvent e) {}

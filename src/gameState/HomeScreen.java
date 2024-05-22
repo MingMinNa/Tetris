@@ -109,7 +109,7 @@ class HomePanel extends JPanel{
         add(rotate_descrip);
     }
     private void game_cover(){
-        ImageIcon cover = new ImageIcon("img\\cover.png");
+        ImageIcon cover = new ImageIcon("img/cover.png");
         JLabel coverLabel = labelMake(400, 300, "", 250, 250 );
         coverLabel.setIcon(cover);
         add(coverLabel);
