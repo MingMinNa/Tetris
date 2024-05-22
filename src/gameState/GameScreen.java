@@ -52,6 +52,8 @@ public class GameScreen {
             MusicPlayer music_player = null;
             // auto_fall_ticks is for auto-fall; moval_time_ticks is for left, right and down
             // auto-fall_time_ticks = 6 * time_ticks, moval_time_ticks = 2 * time_ticks
+
+            // ***** use time_ticks_temp ******
             int auto_fall_ticks = 0, moval_ticks = 0;
             int time_ticks_temp = time_ticks;
             while(true){
@@ -87,7 +89,7 @@ public class GameScreen {
                     frame.revalidate();
                     frame.repaint();
                 }
-                else if(delta_time >= time_ticks){
+                else if(delta_time >= time_ticks_temp){
                     auto_fall_ticks++;
                     moval_ticks++;
                     last_update_time = current_time;
@@ -433,7 +435,7 @@ public class GameScreen {
     }
     private void gameLineCheck(Cell [][] game_area_cells){
         int del_line = 0;
-        MusicPlayer deleteLine_Music = null;
+        MusicPlayer deleteLine_Music = new MusicPlayer("deleteLine_Music", false);
         for(int i = game_area_cells.length - 1; i > 1; i--){
             boolean all_filled = true;
             // check whether the line is filled with blocks_cells
@@ -447,14 +449,11 @@ public class GameScreen {
             }
             else {
                 del_line++;
-
-                // ****** add deleteLine Music ******
-                if(deleteLine_Music != null){
-                    deleteLine_Music.stopPlaying();
-                }
-                deleteLine_Music = new MusicPlayer("deleteLine_Music", false);
-                deleteLine_Music.start();
             }
+        }
+        // ****** add deleteLine Music ******
+        if(del_line>0) {
+            deleteLine_Music.start();
         }
         int current_score = background_panel.getScore();
 
