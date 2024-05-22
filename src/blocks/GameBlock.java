@@ -51,7 +51,7 @@ public class GameBlock {
     public boolean getForPreview(){return for_preview;}
     public int getCenterX(){return block_center_x;}
     public int getCenterY(){return block_center_y;}
-    public int getBlockState(){return block_state;}
+    public int getBlockDir(){return block_dir;}
 
     public void setColor(int color_idx){
         if(color_idx < COLOR_LIST.size())
@@ -72,15 +72,15 @@ public class GameBlock {
         this.block_center_x = center_x;
         this.block_center_y = center_y;
     }
-    public void setState(int next_state){
-        if(next_state >= 0 && next_state <= 3)
-            block_state = next_state;
+    public void setDirection(int next_dir){
+        if(next_dir >= 0 && next_dir <= 3)
+            block_dir = next_dir;
     }
     
     // -----------------------------
     private int block_center_x, block_center_y;
     private int block_type;
-    private int block_state;
+    private int block_dir;
     private String color;
     private boolean for_preview;
 }
