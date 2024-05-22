@@ -62,9 +62,10 @@ public class MusicPlayer extends Thread {
     
     // mp3 file path
     private final Map<String, String> state_music = new HashMap<>(){{
-        put("GameState1", "sound\\GameState1.mp3");
-        put("GameState2", "sound\\GameState2.mp3");
-        put("GameState3", "sound\\GameState3.mp3");
-        put("HomeState", "sound\\HomeState.mp3");
+        put("GameState1", "sound/GameState1.mp3");
+        put("GameState2", "sound/GameState2.mp3");
+        put("GameState3", "sound/GameState3.mp3");
+        put("HomeState", "sound/HomeState.mp3");
+        put("DeleteLine", "sound/DeleteLine.mp3");
     }};
 }
