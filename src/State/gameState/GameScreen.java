@@ -695,23 +695,45 @@ class GamePanel extends JPanel{
         label.setVerticalAlignment(JLabel.CENTER);
         return label;
     }
+    private void buildCellBorderLine(){
+        // This feature is currently turned off because the border line may cause eye discomfort
+        
+        // vertical border line
+        int x_init = X_START + Cell.BLOCK_WIDTH / 2, y_init = Y_START;
+        for(int i = 1; i <= GAME_AREA_Y_CNT; i ++){
+            for(int j = 1; j < GAME_AREA_X_CNT; j++){
+                JLabel cell_border = labelMake(x_init + Cell.BLOCK_WIDTH * j + 1, y_init + Cell.BLOCK_HEIGHT * i , "",  3, Cell.BLOCK_HEIGHT - 3);
+                cell_border.setIcon(cell_img.get("gray"));
+                this.add(cell_border);
+            }
+        }
+        // horizontal border line
+        x_init = X_START; y_init = Y_START +  + Cell.BLOCK_HEIGHT / 2;
+        for(int i = 1; i < GAME_AREA_Y_CNT; i ++){
+            for(int j = 1; j <= GAME_AREA_X_CNT; j++){
+                JLabel cell_border = labelMake(x_init + Cell.BLOCK_WIDTH * j, y_init + Cell.BLOCK_HEIGHT * i + 1 , "",  Cell.BLOCK_WIDTH - 3, 3);
+                cell_border.setIcon(cell_img.get("gray"));
+                this.add(cell_border);
+            }
+        }
+    }
     private void buildBorder(int x_cnt, int y_cnt, int x_init, int y_init, boolean preview_or_game){
         // load the gray_cell image
         for(int i = 0; i < y_cnt; i++){
             for(int j = 0;j < x_cnt; j++){
                 if(i == 0 || i == y_cnt - 1 || j == 0 || j == x_cnt - 1){
                     
-                    JLabel borderLabel = labelMake(x_init + Cell.BLOCK_WIDTH * j , y_init + Cell.BLOCK_HEIGHT * i , "", Cell.BLOCK_WIDTH - 3, Cell.BLOCK_HEIGHT - 3);
+                    JLabel borderLabel = labelMake(x_init + Cell.BLOCK_WIDTH * j , y_init + Cell.BLOCK_HEIGHT * i , "", Cell.BLOCK_WIDTH - 4, Cell.BLOCK_HEIGHT - 4);
                     borderLabel.setIcon(cell_img.get("gray"));
                     this.add(borderLabel);
                 }
                 else if(preview_or_game == true){
-                    label_cells[i - 1][j - 1] = labelMake(X_START + Cell.BLOCK_WIDTH * j + 1,Y_START + Cell.BLOCK_HEIGHT * i + 1,"", Cell.BLOCK_WIDTH - 3, Cell.BLOCK_HEIGHT - 3);
+                    label_cells[i - 1][j - 1] = labelMake(X_START + Cell.BLOCK_WIDTH * j + 1,Y_START + Cell.BLOCK_HEIGHT * i + 1,"", Cell.BLOCK_WIDTH - 4, Cell.BLOCK_HEIGHT - 4);
                     label_cells[i - 1][j - 1].setVisible(false);
                     this.add(label_cells[i - 1][j - 1]);
                 }
                 else{
-                    JLabel innerLabel = labelMake(x_init + Cell.BLOCK_WIDTH * j , y_init + Cell.BLOCK_HEIGHT * i , "", Cell.BLOCK_WIDTH - 3, Cell.BLOCK_HEIGHT - 3);
+                    JLabel innerLabel = labelMake(x_init + Cell.BLOCK_WIDTH * j , y_init + Cell.BLOCK_HEIGHT * i , "", Cell.BLOCK_WIDTH - 4, Cell.BLOCK_HEIGHT - 4);
                     label_preview[i - 1][j - 1] = innerLabel;
                     innerLabel.setVisible(false);
                     this.add(label_preview[i - 1][j - 1]);
@@ -749,6 +771,9 @@ class GamePanel extends JPanel{
         int score_x = PREVIEW_AREA_X + (PREVIEW_AREA_X_CNT / 2 - 1) * Cell.BLOCK_WIDTH + PREVIEW_AREA_X_CNT, 
             score_y = 120;
         buildScoreDisplay(score_x, score_y);
+
+        // To have border line, just remove the comments below. 
+        // buildCellBorderLine(); 
     }
     private static JLabel [][] label_score_display = new JLabel[5][15]; // int score_height_cnt = 5, score_witdh_cnt = 15;
     private static JLabel [][] label_cells = new JLabel[GAME_AREA_Y_CNT][GAME_AREA_X_CNT];
