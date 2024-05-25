@@ -146,6 +146,8 @@ public class GameScreen {
                     if(score >= GAME_CLEAR_SCORE)
                         break GAME_END_LABEL;
                 }
+                try{Thread.sleep(5);}
+                catch(InterruptedException e){e.printStackTrace();}
             }
             if(music_player != null)
                 {music_player.stopPlaying(); music_player.interrupt();}
@@ -773,7 +775,7 @@ class GamePanel extends JPanel{
         buildScoreDisplay(score_x, score_y);
 
         // To have border line, just remove the comments below. 
-        // buildCellBorderLine(); 
+        buildCellBorderLine(); 
     }
     private static JLabel [][] label_score_display = new JLabel[5][15]; // int score_height_cnt = 5, score_witdh_cnt = 15;
     private static JLabel [][] label_cells = new JLabel[GAME_AREA_Y_CNT][GAME_AREA_X_CNT];
