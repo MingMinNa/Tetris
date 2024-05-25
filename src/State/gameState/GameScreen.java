@@ -58,9 +58,23 @@ public class GameScreen {
         public boolean run(JFrame frame) {
             MusicPlayer music_player = null;
             boolean game_over = false;
-            // auto_fall_ticks is for auto-fall; moval_time_ticks is for left, right and down
-            // auto-fall_time_ticks = 6 * time_ticks, moval_time_ticks = 2 * time_ticks
-            int auto_fall_ticks = 0, moval_ticks = 0;
+            // auto_fall_ticks is for auto-fall; movement_time_ticks is for left, right and down
+            // auto-fall_time_ticks = GAME_STATE_AUTO_FALL_TICK[ speedup_state ] * time_ticks, 
+            // movement_time_ticks = 2 * time_ticks
+            int auto_fall_ticks = 0, movement_ticks = 0;
+
+            // The description explains show Why I use "left_right_move" variable
+            /*  to prevent the the block from moving horizontally twice with only one click
+                For example, if you press and quickly release key "D", it should be expected to move right once
+                but sometimes, due to ths fast time ticks, it will move right twice with one click.
+ 
+                To fix the above problem
+                For the first movement (left or right), it move as soon as possible (two movement_ticks)
+                but for the second movement, it need four movement_ticks to move.
+                then for the third and so on movement, it need two movement_ticks to move(same as other operations) 
+            */
+            int left_right_move = 0;  
+
             GAME_END_LABEL:while(true){
                 // If the score reach the requirement to the next state, change the game music and enhance the game level(hardness).
                 if(checkNextGameState() && unmute){
@@ -68,7 +82,6 @@ public class GameScreen {
                     music_player = new MusicPlayer("GameState" + Integer.toString(current_speedup_state), true);
                     music_player.start();
                 }
-
                 long current_time = System.currentTimeMillis();
                 long delta_time = current_time - last_update_time;
                 GameKeyHandler key_handler = background_panel.getHandler();
@@ -92,23 +105,29 @@ public class GameScreen {
                     frame.repaint();
                 }
                 else if(delta_time >= time_ticks){
-                    background_panel.stateColorChange(current_speedup_state);
+
                     auto_fall_ticks++;
-                    moval_ticks++;
+                    if(movement_ticks < 2) movement_ticks++;
                     last_update_time = current_time;
+
                     if(current_block == null){
                         currentBlockUpdate();
                         background_panel.paintPreviewBlock(preview_blocks);
                     }
                     // keyboard operation
                     String pressed_key = key_handler.getCurrentKey();
-                    if( pressed_key.equals("left") && moval_ticks >= 2){
-                        tryMove("left");
+
+                    if( pressed_key.equals("left") && movement_ticks >= 2){
+                        if(left_right_move != 1)
+                            tryMove("left");
+                        left_right_move = (left_right_move >= 1)?(2):(1);
                     }   
-                    else if(pressed_key.equals("right") && moval_ticks >= 2){
-                        tryMove("right");
+                    else if(pressed_key.equals("right") && movement_ticks >= 2){
+                        if(left_right_move != 1)
+                            tryMove("right");
+                        left_right_move = (left_right_move >= 1)?(2):(1);
                     }
-                    else if(pressed_key.equals("down") && moval_ticks >= 2){
+                    else if(pressed_key.equals("down") && movement_ticks >= 2){
                         auto_fall_ticks = 0;
                         if(tryMove("down") == false){
                             if(current_cells[3].getY() <= 2){
@@ -137,8 +156,15 @@ public class GameScreen {
                         key_handler.changeLeftRotateState();
                         tryRotate("left");
                     }
-                    if(moval_ticks >= 2)
-                        moval_ticks = 0;
+
+                    // the next left or right movement will be seen as the first one (reset)
+                    if(pressed_key.equals("null")){left_right_move = 0;}
+
+                    if(movement_ticks >= 2 && !pressed_key.equals("null"))
+                        movement_ticks = 0;
+                        
+
+                    background_panel.stateColorChange(current_speedup_state);
                     background_panel.cellPositionUpdate(game_area_cells);
                     background_panel.revalidate();
                     frame.revalidate();
@@ -365,7 +391,7 @@ public class GameScreen {
             this.game_area_cells[colored_pos[block_type][i][0]][colored_pos[block_type][i][1] + init_x].setColor(block_color);
             current_cells[i] = game_area_cells[colored_pos[block_type][i][0]][colored_pos[block_type][i][1] + init_x];
         }
-        // sort the current_cells based on x and y. (to simplify the current_block moval code)
+        // sort the current_cells based on x and y. (to simplify the current_block movement code)
         // for example, assume current_cells has been sorted, then 
         // current_cells[0].getY() > current_cells[1].getY() or 
         // if current_cells[0].getY() == current_cells[1].getY(), current_cells[0].getX() < current_cells[1].getX()
