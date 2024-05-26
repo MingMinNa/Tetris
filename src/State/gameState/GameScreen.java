@@ -488,7 +488,7 @@ class GamePanel extends JPanel{
         // load all color cell into the cell_img map
         for(int i = 0;i < GameBlock.COLOR_LIST.size();i++){
             String color = GameBlock.COLOR_LIST.get(i);
-            cell_img.put(color, new ImageIcon("img/" + color + ".jpg"));
+            cell_img.put(color, new ImageIcon("img/game_img/" + color + ".jpg"));
         }
         setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         setFocusable(true);
@@ -693,12 +693,12 @@ class GamePanel extends JPanel{
         int type = blocks[0].getBlockType();
         for(int i = 0; i < 4;i ++){
             label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setVisible(true);
-            label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img/" + blocks[0].getColor() + ".jpg"));
+            label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img/game_img/" + blocks[0].getColor() + ".jpg"));
         }
         type = blocks[1].getBlockType();
         for(int i = 0; i < 4;i ++){
             label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setVisible(true);
-            label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img/" + blocks[1].getColor() + ".jpg"));
+            label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img/game_img/" + blocks[1].getColor() + ".jpg"));
         }
         this.revalidate();
     }

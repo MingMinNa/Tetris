@@ -189,18 +189,18 @@ class HomePanel extends JPanel{
         add(rotate_descrip);
     }
     private void setGameCover(){
-        ImageIcon cover = new ImageIcon("img\\cover.png");
+        ImageIcon cover = new ImageIcon("img/game_img/cover.png");
         JLabel coverLabel = labelMake(400, 270, "", 250, 250, 20);
         coverLabel.setIcon(cover);
         add(coverLabel);
     }
     private void setBackground_Img(){
-        ImageIcon background_img1 = new ImageIcon("img\\background_img1.png");
+        ImageIcon background_img1 = new ImageIcon("img/game_img/background_img1.png");
         JLabel background_Label1 = labelMake(FRAME_WIDTH / 4 + 10, (FRAME_HEIGHT / 3) * 2 + 50, "", FRAME_WIDTH / 2, FRAME_HEIGHT / 2, 20);
         background_Label1.setIcon(background_img1);
         add(background_Label1);
         
-        ImageIcon background_img2 = new ImageIcon("img\\background_img2.png");
+        ImageIcon background_img2 = new ImageIcon("img/game_img/background_img2.png");
         JLabel background_Label2 = labelMake((FRAME_WIDTH / 4) * 3 - 14, (FRAME_HEIGHT / 3) * 2 + 75, "", FRAME_WIDTH / 2, FRAME_HEIGHT / 2, 20);
         background_Label2.setIcon(background_img2);
         add(background_Label2);
@@ -214,8 +214,8 @@ class HomePanel extends JPanel{
     
     private void changeSoundIcon(){
         final Map<Boolean, ImageIcon> SOUND_ICONS = new HashMap<>(){{
-            put(true, new ImageIcon("img\\unmute.png"));
-            put(false, new ImageIcon("img\\mute.png"));
+            put(true, new ImageIcon("img/game_img/unmute.png"));
+            put(false, new ImageIcon("img/game_img/mute.png"));
         }};
         sound_icon.setIcon(SOUND_ICONS.get(unmute));
     }
