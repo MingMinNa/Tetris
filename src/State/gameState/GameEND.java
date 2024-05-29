@@ -77,7 +77,7 @@ class GameEndPanel extends JPanel implements ScreenPanel{
         setLayout(null);
         setVisible(false);
 
-        continueButtonMake();
+        buildContinueButton();
 
         game_end_handler = new GameEndHandler(){
             public void mouseClicked(MouseEvent e) {
@@ -102,7 +102,7 @@ class GameEndPanel extends JPanel implements ScreenPanel{
         return button_panel_object;
     }
     // ---------------------------------
-    private void continueButtonMake(){
+    private void buildContinueButton(){
         int button_panel_width = 100, button_panel_height = 40;
         JLabel continue_button_text = labelMake(button_panel_width / 2, button_panel_height / 2, "Continue", 40, 40, 20);
         JPanel continue_button_panel = new JPanel();

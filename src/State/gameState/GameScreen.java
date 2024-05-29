@@ -20,10 +20,10 @@ import State.ScreenPanel;
 
 
 public class GameScreen { 
-    public static int time_ticks = 50;
     public static final int GAME_SPEEDUP_STATE_SCORE[] = {0, 500, 1000, -1}; // the score required into the next state
     public static final int GAME_STATE_AUTO_FALL_TICK[] = {0, 6, 4, 3}; // change required auto-fall tick number to satisfy the speedup function
     public static int GAME_CLEAR_SCORE = 1300;
+    public static int time_ticks = 50;
 
     public GameScreen(JFrame frame, boolean unmute){
         this.unmute = unmute;
@@ -437,60 +437,60 @@ public class GameScreen {
             
             return;
         }
+        private boolean checkNextGameState(){
+            boolean next_state = false; 
+            while(GAME_SPEEDUP_STATE_SCORE[current_speedup_state] >= 0 && score >= GAME_SPEEDUP_STATE_SCORE[current_speedup_state]){
+                current_speedup_state = current_speedup_state + 1;
+                next_state = true;
+                background_panel.stateDisplayUpdate(current_speedup_state);
+            }
+            return next_state;
+        }
+        private void gameLineCheck(Cell [][] game_area_cells){
+            int del_line = 0;
+            for(int i = game_area_cells.length - 1; i > 1; i--){
+                boolean all_filled = true;
+                // check whether the line is filled with blocks_cells
+                for(int j = 0; j < game_area_cells[0].length; j++){
+                    if(game_area_cells[i][j].getColor().equals("black")){all_filled = false; break;}
+                }
+                // there exist at least one grid(cell) empty(color:black).
+                if(all_filled == false){
+                    for(int j = 0; j < game_area_cells[0].length; j++){
+                        game_area_cells[i + del_line][j].setColor(game_area_cells[i][j].getColor());
+                        if(del_line != 0)
+                            game_area_cells[i][j].setColor("black");
+                    }
+                }
+                else{
+                    for(int j = 0; j < game_area_cells[0].length; j++){
+                        game_area_cells[i][j].setColor("black");
+                        background_panel.blockPositionUpdate(game_area_cells);
+                        try {Thread.sleep(50);}
+                        catch(InterruptedException e) {e.printStackTrace();}
+                    }
+                    del_line++;
+                }
+            }
+            if(del_line == 0)   return;
+    
+            if(unmute){
+                MusicPlayer delete_player = new MusicPlayer("DeleteLine", false);
+                delete_player.start();
+            }
+            switch(del_line){
+                case 4: score += 400;break;
+                case 3: score += 250;break;
+                case 2: score += 150;break;
+                case 1: score += 50;break;
+                default:
+                    break;
+            }
+            background_panel.scoreDisplayUpdate(score);
+        }
     }
 
     // ----------------------------------------
-    private boolean checkNextGameState(){
-        boolean next_state = false; 
-        while(GAME_SPEEDUP_STATE_SCORE[current_speedup_state] >= 0 && score >= GAME_SPEEDUP_STATE_SCORE[current_speedup_state]){
-            current_speedup_state = current_speedup_state + 1;
-            next_state = true;
-            background_panel.stateDisplayUpdate(current_speedup_state);
-        }
-        return next_state;
-    }
-    private void gameLineCheck(Cell [][] game_area_cells){
-        int del_line = 0;
-        for(int i = game_area_cells.length - 1; i > 1; i--){
-            boolean all_filled = true;
-            // check whether the line is filled with blocks_cells
-            for(int j = 0; j < game_area_cells[0].length; j++){
-                if(game_area_cells[i][j].getColor().equals("black")){all_filled = false; break;}
-            }
-            // there exist at least one grid(cell) empty(color:black).
-            if(all_filled == false){
-                for(int j = 0; j < game_area_cells[0].length; j++){
-                    game_area_cells[i + del_line][j].setColor(game_area_cells[i][j].getColor());
-                    if(del_line != 0)
-                        game_area_cells[i][j].setColor("black");
-                }
-            }
-            else{
-                for(int j = 0; j < game_area_cells[0].length; j++){
-                    game_area_cells[i][j].setColor("black");
-                    background_panel.blockPositionUpdate(game_area_cells);
-                    try {Thread.sleep(50);}
-                    catch(InterruptedException e) {e.printStackTrace();}
-                }
-                del_line++;
-            }
-        }
-        if(del_line == 0)   return;
-
-        if(unmute){
-            MusicPlayer delete_player = new MusicPlayer("DeleteLine", false);
-            delete_player.start();
-        }
-        switch(del_line){
-            case 4: score += 400;break;
-            case 3: score += 250;break;
-            case 2: score += 150;break;
-            case 1: score += 50;break;
-            default:
-                break;
-        }
-        background_panel.scoreDisplayUpdate(score);
-    }
     private void removePanel(JFrame frame){
         background_panel.removeAll();
         background_panel.revalidate();
