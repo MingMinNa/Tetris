@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.function.*;
 
+import State.ScreenPanel;
+
 
 
 public class GameScreen { 
@@ -512,7 +514,7 @@ public class GameScreen {
     private boolean unmute;
 }
 
-class GamePanel extends JPanel{
+class GamePanel extends JPanel implements ScreenPanel{
     public static final int GAME_AREA_X_CNT = 10, GAME_AREA_Y_CNT = 20;
     public static final int PREVIEW_AREA_X_CNT = 8, PREVIEW_AREA_Y_CNT = 12;
     public static final int X_START = 130, Y_START = 100;
@@ -751,18 +753,6 @@ class GamePanel extends JPanel{
         return this.handler;
     }
     // --------------------------------------
-    private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height){
-        return labelMake(center_x, center_y, words, words_width, words_height, 20);
-    }
-    private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height, int font_size){
-        JLabel label = new JLabel(words);
-        label.setBounds(center_x - words_width/2 , center_y - words_height/2, words_width, words_height);
-        
-        label.setFont(new Font("Arial", Font.BOLD, font_size));
-        label.setHorizontalAlignment(JLabel.CENTER);
-        label.setVerticalAlignment(JLabel.CENTER);
-        return label;
-    }
     private void buildCellBorderLine(){
         // This feature is currently turned off because the border line may cause eye discomfort
         

@@ -1,7 +1,6 @@
 package State.homeState;
 
 import javax.swing.*;
-
 import music.MusicPlayer;
 
 import java.awt.*;
@@ -9,6 +8,8 @@ import java.awt.event.*;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import State.ScreenPanel;
 
 
 public class HomeScreen {
@@ -62,7 +63,7 @@ public class HomeScreen {
     private boolean unmute;
     private MusicPlayer music_player = null;
 }
-class HomePanel extends JPanel{
+class HomePanel extends JPanel implements ScreenPanel{
     public static final int FRAME_WIDTH = 800, FRAME_HEIGHT = 800;
     
     public HomePanel(boolean unmute) {
@@ -120,18 +121,10 @@ class HomePanel extends JPanel{
         return false;
     }
     // -----------------------
+    // this function with different signature
     private JLabel labelMake(int center_x, int center_y, String words){
         int words_width = 100, words_height = 30;
         return labelMake(center_x, center_y, words, words_width, words_height, 20);
-    }
-    private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height, int words_size){
-        JLabel label = new JLabel(words);
-        label.setBounds(center_x - words_width/2 , center_y - words_height/2, words_width, words_height);
-        
-        label.setFont(new Font("Arial", Font.BOLD, words_size));
-        label.setHorizontalAlignment(JLabel.CENTER);
-        label.setVerticalAlignment(JLabel.CENTER);
-        return label;
     }
     private void setEnterLabel(){
         enter_game_label = labelMake(400 , 450, "Press Enter to play", 250, 50, 25);
