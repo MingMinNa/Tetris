@@ -904,5 +904,5 @@ class GameKeyHandler implements KeyListener{
 
     // ---------------------------
     private boolean left = false, right = false, down = false, space = false, left_rotate = false, right_rotate = false;
-    private boolean space_done = false, left_rotate_done = false, right_rotate_done;
+    private boolean space_done = false, left_rotate_done = false, right_rotate_done = false;
 }

@@ -4,7 +4,6 @@ import javax.swing.*;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import java.util.HashMap;
@@ -215,7 +214,6 @@ class HomePanel extends JPanel implements ScreenPanel{
     
     private void changeSoundIcon(){
         final Map<Boolean, ImageIcon> SOUND_ICONS = new HashMap<>(){{
-            ;
             put(true, new ImageIcon(Paths.get("img", "game_img", "unmute.png").toString()));
             put(false, new ImageIcon(Paths.get("img", "game_img", "mute.png").toString()));
         }};
