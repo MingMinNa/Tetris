@@ -3,6 +3,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import State.ScreenPanel;
+
 public class GameEND{
     public GameEND(GamePanel background_panel){
         game_end_panel = null;
@@ -62,7 +64,7 @@ public class GameEND{
     private GameEndPanel game_end_panel;
 }
 
-class GameEndPanel extends JPanel{
+class GameEndPanel extends JPanel implements ScreenPanel{
 
     public static final int PANEL_WIDTH = 400, PANEL_HEIGHT = 300;
     public GameEndPanel(){
@@ -75,7 +77,7 @@ class GameEndPanel extends JPanel{
         setLayout(null);
         setVisible(false);
 
-        continueButtonMake();
+        buildContinueButton();
 
         game_end_handler = new GameEndHandler(){
             public void mouseClicked(MouseEvent e) {
@@ -100,16 +102,7 @@ class GameEndPanel extends JPanel{
         return button_panel_object;
     }
     // ---------------------------------
-    private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height, int font_size){
-        JLabel label = new JLabel(words);
-        label.setBounds(center_x - words_width/2 , center_y - words_height/2, words_width, words_height);
-        
-        label.setFont(new Font("Arial", Font.BOLD, font_size));
-        label.setHorizontalAlignment(JLabel.CENTER);
-        label.setVerticalAlignment(JLabel.CENTER);
-        return label;
-    }
-    private void continueButtonMake(){
+    private void buildContinueButton(){
         int button_panel_width = 100, button_panel_height = 40;
         JLabel continue_button_text = labelMake(button_panel_width / 2, button_panel_height / 2, "Continue", 40, 40, 20);
         JPanel continue_button_panel = new JPanel();

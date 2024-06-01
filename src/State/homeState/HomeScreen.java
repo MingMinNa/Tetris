@@ -2,18 +2,20 @@ package State.homeState;
 
 import javax.swing.*;
 
-import music.MusicPlayer;
-
 import java.awt.*;
 import java.awt.event.*;
+import java.nio.file.Paths;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import State.ScreenPanel;
+import music.MusicPlayer;
+
 
 public class HomeScreen {
     public HomeScreen(JFrame frame, boolean unmute){
-        HomePanel background_panel = new HomePanel(unmute);
+        background_panel = new HomePanel(unmute);
         frame.getContentPane().add(background_panel);
         background_panel.requestFocusInWindow();
         this.unmute = unmute;
@@ -34,11 +36,9 @@ public class HomeScreen {
         }
         
         stopMusicPlayer();
-        background_panel.removeAll();
-        background_panel.revalidate();
-        frame.getContentPane().remove(background_panel);
+        removePanel(frame);
     }
-    public boolean unmuteSetting(){
+    public boolean getUnmute(){
         return this.unmute;
     }
     // ----------------
@@ -59,10 +59,17 @@ public class HomeScreen {
         else music_player = null;
     }
     
+    private void removePanel(JFrame frame){
+        background_panel.removeAll();
+        background_panel.revalidate();
+        frame.getContentPane().remove(background_panel);
+    }
+
     private boolean unmute;
     private MusicPlayer music_player = null;
+    private HomePanel background_panel;
 }
-class HomePanel extends JPanel{
+class HomePanel extends JPanel implements ScreenPanel{
     public static final int FRAME_WIDTH = 800, FRAME_HEIGHT = 800;
     
     public HomePanel(boolean unmute) {
@@ -72,11 +79,11 @@ class HomePanel extends JPanel{
         setLayout(null);
         setBackground(Color.BLACK);
 
-        setEnterLabel();
-        setkeyboardDescription();
-        setGameCover();
-        setBackground_Img();
-        setSoundIcon();
+        buildEnterLabel();
+        buildkeyboardDescription();
+        buildGameCover();
+        buildBackground_Img();
+        buildSoundIcon();
 
         key_handler = new HomeKeyHandler();
         addKeyListener(key_handler);
@@ -120,26 +127,18 @@ class HomePanel extends JPanel{
         return false;
     }
     // -----------------------
+    // this function with different signature
     private JLabel labelMake(int center_x, int center_y, String words){
         int words_width = 100, words_height = 30;
         return labelMake(center_x, center_y, words, words_width, words_height, 20);
     }
-    private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height, int words_size){
-        JLabel label = new JLabel(words);
-        label.setBounds(center_x - words_width/2 , center_y - words_height/2, words_width, words_height);
-        
-        label.setFont(new Font("Arial", Font.BOLD, words_size));
-        label.setHorizontalAlignment(JLabel.CENTER);
-        label.setVerticalAlignment(JLabel.CENTER);
-        return label;
-    }
-    private void setEnterLabel(){
+    private void buildEnterLabel(){
         enter_game_label = labelMake(400 , 450, "Press Enter to play", 250, 50, 25);
         enter_game_label.setForeground(new Color(255, 255,255));
         // enter_game_label
         add(enter_game_label);
     }
-    private void setkeyboardDescription(){
+    private void buildkeyboardDescription(){
         // Describe "How to play"
         int x_start = 350;
         int y_start = 550;
@@ -188,24 +187,25 @@ class HomePanel extends JPanel{
         add(move_descrip);
         add(rotate_descrip);
     }
-    private void setGameCover(){
-        ImageIcon cover = new ImageIcon("img/game_img/cover.png");
+    private void buildGameCover(){
+        
+        ImageIcon cover = new ImageIcon(Paths.get("img","game_img", "cover.png").toString());
         JLabel coverLabel = labelMake(400, 270, "", 250, 250, 20);
         coverLabel.setIcon(cover);
         add(coverLabel);
     }
-    private void setBackground_Img(){
-        ImageIcon background_img1 = new ImageIcon("img/game_img/background_img1.png");
+    private void buildBackground_Img(){
+        ImageIcon background_img1 = new ImageIcon(Paths.get("img","game_img", "background_img1.png").toString());
         JLabel background_Label1 = labelMake(FRAME_WIDTH / 4 + 10, (FRAME_HEIGHT / 3) * 2 + 50, "", FRAME_WIDTH / 2, FRAME_HEIGHT / 2, 20);
         background_Label1.setIcon(background_img1);
         add(background_Label1);
         
-        ImageIcon background_img2 = new ImageIcon("img/game_img/background_img2.png");
+        ImageIcon background_img2 = new ImageIcon(Paths.get("img","game_img", "background_img2.png").toString());
         JLabel background_Label2 = labelMake((FRAME_WIDTH / 4) * 3 - 14, (FRAME_HEIGHT / 3) * 2 + 75, "", FRAME_WIDTH / 2, FRAME_HEIGHT / 2, 20);
         background_Label2.setIcon(background_img2);
         add(background_Label2);
     }
-    private void setSoundIcon(){
+    private void buildSoundIcon(){
         sound_icon = labelMake(40, 40, "", 70, 70, 10);
         sound_icon.setForeground(Color.WHITE);
         changeSoundIcon();
@@ -214,8 +214,8 @@ class HomePanel extends JPanel{
     
     private void changeSoundIcon(){
         final Map<Boolean, ImageIcon> SOUND_ICONS = new HashMap<>(){{
-            put(true, new ImageIcon("img/game_img/unmute.png"));
-            put(false, new ImageIcon("img/game_img/mute.png"));
+            put(true, new ImageIcon(Paths.get("img", "game_img", "unmute.png").toString()));
+            put(false, new ImageIcon(Paths.get("img", "game_img", "mute.png").toString()));
         }};
         sound_icon.setIcon(SOUND_ICONS.get(unmute));
     }

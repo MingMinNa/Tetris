@@ -5,6 +5,8 @@ import javax.swing.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.nio.file.Paths;
+
 import blocks.*;
 import music.MusicPlayer;
 
@@ -15,13 +17,15 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.function.*;
 
+import State.ScreenPanel;
+
 
 
 public class GameScreen { 
-    public static int time_ticks = 50;
     public static final int GAME_SPEEDUP_STATE_SCORE[] = {0, 500, 1000, -1}; // the score required into the next state
     public static final int GAME_STATE_AUTO_FALL_TICK[] = {0, 6, 4, 3}; // change required auto-fall tick number to satisfy the speedup function
     public static int GAME_CLEAR_SCORE = 1300;
+    public static int time_ticks = 50;
 
     public GameScreen(JFrame frame, boolean unmute){
         this.unmute = unmute;
@@ -435,60 +439,60 @@ public class GameScreen {
             
             return;
         }
+        private boolean checkNextGameState(){
+            boolean next_state = false; 
+            while(GAME_SPEEDUP_STATE_SCORE[current_speedup_state] >= 0 && score >= GAME_SPEEDUP_STATE_SCORE[current_speedup_state]){
+                current_speedup_state = current_speedup_state + 1;
+                next_state = true;
+                background_panel.stateDisplayUpdate(current_speedup_state);
+            }
+            return next_state;
+        }
+        private void gameLineCheck(Cell [][] game_area_cells){
+            int del_line = 0;
+            for(int i = game_area_cells.length - 1; i > 1; i--){
+                boolean all_filled = true;
+                // check whether the line is filled with blocks_cells
+                for(int j = 0; j < game_area_cells[0].length; j++){
+                    if(game_area_cells[i][j].getColor().equals("black")){all_filled = false; break;}
+                }
+                // there exist at least one grid(cell) empty(color:black).
+                if(all_filled == false){
+                    for(int j = 0; j < game_area_cells[0].length; j++){
+                        game_area_cells[i + del_line][j].setColor(game_area_cells[i][j].getColor());
+                        if(del_line != 0)
+                            game_area_cells[i][j].setColor("black");
+                    }
+                }
+                else{
+                    for(int j = 0; j < game_area_cells[0].length; j++){
+                        game_area_cells[i][j].setColor("black");
+                        background_panel.blockPositionUpdate(game_area_cells);
+                        try {Thread.sleep(50);}
+                        catch(InterruptedException e) {e.printStackTrace();}
+                    }
+                    del_line++;
+                }
+            }
+            if(del_line == 0)   return;
+    
+            if(unmute){
+                MusicPlayer delete_player = new MusicPlayer("DeleteLine", false);
+                delete_player.start();
+            }
+            switch(del_line){
+                case 4: score += 400;break;
+                case 3: score += 250;break;
+                case 2: score += 150;break;
+                case 1: score += 50;break;
+                default:
+                    break;
+            }
+            background_panel.scoreDisplayUpdate(score);
+        }
     }
 
     // ----------------------------------------
-    private boolean checkNextGameState(){
-        boolean next_state = false; 
-        while(GAME_SPEEDUP_STATE_SCORE[current_speedup_state] >= 0 && score >= GAME_SPEEDUP_STATE_SCORE[current_speedup_state]){
-            current_speedup_state = current_speedup_state + 1;
-            next_state = true;
-            background_panel.stateDisplayUpdate(current_speedup_state);
-        }
-        return next_state;
-    }
-    private void gameLineCheck(Cell [][] game_area_cells){
-        int del_line = 0;
-        for(int i = game_area_cells.length - 1; i > 1; i--){
-            boolean all_filled = true;
-            // check whether the line is filled with blocks_cells
-            for(int j = 0; j < game_area_cells[0].length; j++){
-                if(game_area_cells[i][j].getColor().equals("black")){all_filled = false; break;}
-            }
-            // there exist at least one grid(cell) empty(color:black).
-            if(all_filled == false){
-                for(int j = 0; j < game_area_cells[0].length; j++){
-                    game_area_cells[i + del_line][j].setColor(game_area_cells[i][j].getColor());
-                    if(del_line != 0)
-                        game_area_cells[i][j].setColor("black");
-                }
-            }
-            else{
-                for(int j = 0; j < game_area_cells[0].length; j++){
-                    game_area_cells[i][j].setColor("black");
-                    background_panel.blockPositionUpdate(game_area_cells);
-                    try {Thread.sleep(50);}
-                    catch(InterruptedException e) {e.printStackTrace();}
-                }
-                del_line++;
-            }
-        }
-        if(del_line == 0)   return;
-
-        if(unmute){
-            MusicPlayer delete_player = new MusicPlayer("DeleteLine", false);
-            delete_player.start();
-        }
-        switch(del_line){
-            case 4: score += 400;break;
-            case 3: score += 250;break;
-            case 2: score += 150;break;
-            case 1: score += 50;break;
-            default:
-                break;
-        }
-        background_panel.scoreDisplayUpdate(score);
-    }
     private void removePanel(JFrame frame){
         background_panel.removeAll();
         background_panel.revalidate();
@@ -512,7 +516,7 @@ public class GameScreen {
     private boolean unmute;
 }
 
-class GamePanel extends JPanel{
+class GamePanel extends JPanel implements ScreenPanel{
     public static final int GAME_AREA_X_CNT = 10, GAME_AREA_Y_CNT = 20;
     public static final int PREVIEW_AREA_X_CNT = 8, PREVIEW_AREA_Y_CNT = 12;
     public static final int X_START = 130, Y_START = 100;
@@ -526,7 +530,7 @@ class GamePanel extends JPanel{
         // load all color cell into the cell_img map
         for(int i = 0;i < GameBlock.COLOR_LIST.size();i++){
             String color = GameBlock.COLOR_LIST.get(i);
-            cell_img.put(color, new ImageIcon("img/game_img/" + color + ".jpg"));
+            cell_img.put(color, new ImageIcon(Paths.get("img", "game_img", color + ".jpg").toString()));
         }
         setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         setFocusable(true);
@@ -732,12 +736,12 @@ class GamePanel extends JPanel{
         int type = blocks[0].getBlockType();
         for(int i = 0; i < 4;i ++){
             label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setVisible(true);
-            label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img/game_img/" + blocks[0].getColor() + ".jpg"));
+            label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setIcon(cell_img.get(blocks[0].getColor()));
         }
         type = blocks[1].getBlockType();
         for(int i = 0; i < 4;i ++){
             label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setVisible(true);
-            label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img/game_img/" + blocks[1].getColor() + ".jpg"));
+            label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setIcon(cell_img.get(blocks[1].getColor()));
         }
         this.revalidate();
     }
@@ -751,18 +755,6 @@ class GamePanel extends JPanel{
         return this.handler;
     }
     // --------------------------------------
-    private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height){
-        return labelMake(center_x, center_y, words, words_width, words_height, 20);
-    }
-    private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height, int font_size){
-        JLabel label = new JLabel(words);
-        label.setBounds(center_x - words_width/2 , center_y - words_height/2, words_width, words_height);
-        
-        label.setFont(new Font("Arial", Font.BOLD, font_size));
-        label.setHorizontalAlignment(JLabel.CENTER);
-        label.setVerticalAlignment(JLabel.CENTER);
-        return label;
-    }
     private void buildCellBorderLine(){
         // This feature is currently turned off because the border line may cause eye discomfort
         
@@ -912,5 +904,5 @@ class GameKeyHandler implements KeyListener{
 
     // ---------------------------
     private boolean left = false, right = false, down = false, space = false, left_rotate = false, right_rotate = false;
-    private boolean space_done = false, left_rotate_done = false, right_rotate_done;
+    private boolean space_done = false, left_rotate_done = false, right_rotate_done = false;
 }
