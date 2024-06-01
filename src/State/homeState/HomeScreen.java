@@ -1,15 +1,17 @@
 package State.homeState;
 
 import javax.swing.*;
-import music.MusicPlayer;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import State.ScreenPanel;
+import music.MusicPlayer;
 
 
 public class HomeScreen {
@@ -187,18 +189,19 @@ class HomePanel extends JPanel implements ScreenPanel{
         add(rotate_descrip);
     }
     private void buildGameCover(){
-        ImageIcon cover = new ImageIcon("img/game_img/cover.png");
+        
+        ImageIcon cover = new ImageIcon(Paths.get("img","game_img", "cover.png").toString());
         JLabel coverLabel = labelMake(400, 270, "", 250, 250, 20);
         coverLabel.setIcon(cover);
         add(coverLabel);
     }
     private void buildBackground_Img(){
-        ImageIcon background_img1 = new ImageIcon("img/game_img/background_img1.png");
+        ImageIcon background_img1 = new ImageIcon(Paths.get("img","game_img", "background_img1.png").toString());
         JLabel background_Label1 = labelMake(FRAME_WIDTH / 4 + 10, (FRAME_HEIGHT / 3) * 2 + 50, "", FRAME_WIDTH / 2, FRAME_HEIGHT / 2, 20);
         background_Label1.setIcon(background_img1);
         add(background_Label1);
         
-        ImageIcon background_img2 = new ImageIcon("img/game_img/background_img2.png");
+        ImageIcon background_img2 = new ImageIcon(Paths.get("img","game_img", "background_img2.png").toString());
         JLabel background_Label2 = labelMake((FRAME_WIDTH / 4) * 3 - 14, (FRAME_HEIGHT / 3) * 2 + 75, "", FRAME_WIDTH / 2, FRAME_HEIGHT / 2, 20);
         background_Label2.setIcon(background_img2);
         add(background_Label2);
@@ -212,8 +215,9 @@ class HomePanel extends JPanel implements ScreenPanel{
     
     private void changeSoundIcon(){
         final Map<Boolean, ImageIcon> SOUND_ICONS = new HashMap<>(){{
-            put(true, new ImageIcon("img/game_img/unmute.png"));
-            put(false, new ImageIcon("img/game_img/mute.png"));
+            ;
+            put(true, new ImageIcon(Paths.get("img", "game_img", "unmute.png").toString()));
+            put(false, new ImageIcon(Paths.get("img", "game_img", "mute.png").toString()));
         }};
         sound_icon.setIcon(SOUND_ICONS.get(unmute));
     }

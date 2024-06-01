@@ -5,6 +5,8 @@ import javax.swing.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.nio.file.Paths;
+
 import blocks.*;
 import music.MusicPlayer;
 
@@ -528,7 +530,7 @@ class GamePanel extends JPanel implements ScreenPanel{
         // load all color cell into the cell_img map
         for(int i = 0;i < GameBlock.COLOR_LIST.size();i++){
             String color = GameBlock.COLOR_LIST.get(i);
-            cell_img.put(color, new ImageIcon("img/game_img/" + color + ".jpg"));
+            cell_img.put(color, new ImageIcon(Paths.get("img", "game_img", color + ".jpg").toString()));
         }
         setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         setFocusable(true);
@@ -734,12 +736,12 @@ class GamePanel extends JPanel implements ScreenPanel{
         int type = blocks[0].getBlockType();
         for(int i = 0; i < 4;i ++){
             label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setVisible(true);
-            label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img/game_img/" + blocks[0].getColor() + ".jpg"));
+            label_preview[colored_pos[type][i][0] - 1][colored_pos[type][i][1] - 1].setIcon(cell_img.get(blocks[0].getColor()));
         }
         type = blocks[1].getBlockType();
         for(int i = 0; i < 4;i ++){
             label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setVisible(true);
-            label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setIcon(new ImageIcon("img/game_img/" + blocks[1].getColor() + ".jpg"));
+            label_preview[colored_pos[type][i][0] - 1 + 6][colored_pos[type][i][1] - 1].setIcon(cell_img.get(blocks[1].getColor()));
         }
         this.revalidate();
     }
