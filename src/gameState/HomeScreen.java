@@ -1,247 +1,364 @@
-// package gameState;
-
-// import javax.swing.*;
-
-// import java.awt.*;
-// import java.awt.event.*;
-
-
-// public class HomeScreen {
-//     public static boolean game_play = false; 
-//     public static int time_ticks = 60; // current is useless 
-
-//     public HomeScreen(JFrame frame){
-        
-//         game_play = false;
-//         HomePanel background_panel = new HomePanel();
-//         HomeKeyHandler.setPanel(background_panel);
-//         frame.getContentPane().add(background_panel);
-//         background_panel.requestFocusInWindow();
-
-//         while(game_play == false){
-//             frame.revalidate();
-//             frame.repaint();
-//         }
-
-//         frame.getContentPane().remove(background_panel);
-//     }
-// }
-// class HomePanel extends JPanel{
-//     public int FRAME_WIDTH = 800, FRAME_HEIGHT = 800;
-//     public HomePanel() {
-//         setPreferredSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
-//         setFocusable(true);
-//         setBackground(Color.BLACK);
-//         setLayout(null);
-
-//         keyboard_description();
-//         game_cover();
-
-//         addKeyListener(new HomeKeyHandler());
-//         addMouseListener(new MouseAdapter() {
-//             public void mouseClicked(MouseEvent e) {
-//                 requestFocusInWindow();
-//             }
-//         });
-        
-//     }
-    
-//     private JLabel labelMake(int center_x, int center_y, String words){
-//         int words_width = 100, words_height = 30;
-//         return labelMake(center_x, center_y, words, words_width, words_height);
-//     }
-//     private JLabel labelMake(int center_x, int center_y, String words, int words_width, int words_height){
-//         JLabel label = new JLabel(words);
-//         label.setBounds(center_x - words_width/2 , center_y - words_height/2, words_width, words_height);
-        
-//         label.setFont(new Font("Arial", Font.BOLD, 20));
-//         label.setHorizontalAlignment(JLabel.CENTER);
-//         label.setVerticalAlignment(JLabel.CENTER);
-//         return label;
-//     }
-//     private void keyboard_description(){
-//         // Describe "How to play"
-//         int x_start = 350;
-//         int y_start = 500;
-//         JLabel space = labelMake(x_start, y_start, "Space");
-//         space.setForeground(Color.BLACK);
-//         space.setOpaque(true);
-
-//         JLabel down = labelMake(x_start, y_start + 40, "↓", 30, 30);
-//         down.setForeground(Color.BLACK);
-//         down.setOpaque(true);
-
-//         JLabel left = labelMake(x_start - 20, y_start + 40 * 2, "←", 30, 30);
-//         left.setForeground(Color.BLACK);
-//         left.setOpaque(true);
-
-//         JLabel right = labelMake(x_start + 20, y_start + 40 * 2, "→", 30, 30);
-//         right.setForeground(Color.BLACK);
-//         right.setOpaque(true);
-
-//         JLabel left_rotate = labelMake(x_start - 20, y_start + 40 * 3, "A", 30, 30);
-//         left_rotate.setForeground(Color.BLACK);
-//         left_rotate.setOpaque(true);
-
-//         JLabel right_rotate = labelMake(x_start + 20, y_start + 40 * 3, "D", 30, 30);
-//         right_rotate.setForeground(Color.BLACK);
-//         right_rotate.setOpaque(true);
-
-//         JLabel space_descrip = labelMake(x_start + 150, y_start, "Hard drop");
-//         space_descrip.setForeground(Color.WHITE);
-
-//         JLabel down_descrip = labelMake(x_start + 150, y_start + 40 * 1, "Soft drop");
-//         down_descrip.setForeground(Color.WHITE);
-
-//         JLabel move_descrip = labelMake(x_start + 150, y_start + 40 * 2, "Move");
-//         move_descrip.setForeground(Color.WHITE);
-
-//         JLabel rotate_descrip = labelMake(x_start + 150, y_start + 40 * 3, "Rotate");
-//         rotate_descrip.setForeground(Color.WHITE);
-        
-//         add(space);add(down);
-//         add(left);add(right);
-//         add(left_rotate);add(right_rotate);
-
-//         add(space_descrip);
-//         add(down_descrip);
-//         add(move_descrip);
-//         add(rotate_descrip);
-//     }
-//     private void game_cover(){
-//         ImageIcon cover = new ImageIcon("img\\cover.png");
-//         JLabel coverLabel = labelMake(400, 300, "", 250, 250 );
-//         coverLabel.setIcon(cover);
-//         add(coverLabel);
-//     }
-
-// }
-
-// class HomeKeyHandler implements KeyListener{
-//     @Override
-//     public void keyPressed(KeyEvent e) {}
-//     @Override
-//     public void keyReleased(KeyEvent e) {
-//         // Press any to play game, remove the panel in the frame.
-//         HomeScreen.game_play = true;
-//         control_panel.removeAll();
-//         control_panel.revalidate();
-//     }
-//     @Override
-//     public void keyTyped(KeyEvent e) {}
-
-//     public static void setPanel(HomePanel background_panel){control_panel = background_panel;}
-//     // ---------------------------
-//     private static HomePanel control_panel;
-// }
-package frontPage;
+package State.homeState;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.Window;
+import java.nio.file.Paths;
 
-public class HomeScreen extends JFrame{
+import java.util.HashMap;
+import java.util.Map;
 
-    public HomeScreen(){
-        setTitle("Tetris");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        add(new HomePanel());
-        addKeyListener(new KeyAdapter(){
-            @Override
-            public void keyPressed(KeyEvent e){
-                enterGame();
+import State.ScreenPanel;
+import music.MusicPlayer;
+
+public class HomeScreen {
+    public HomeScreen(JFrame frame, boolean unmute) {
+        background_panel = new HomePanel(unmute);
+        frame.getContentPane().add(background_panel);
+        background_panel.requestFocusInWindow();
+        this.unmute = unmute;
+
+        initalMusicPlayer();
+        while (background_panel.getKeyHandler().checkEnter() == false) {
+
+            background_panel.enterLabelColorChange();
+            if (background_panel.checkClickSoundIcon()) {
+                this.unmute = !this.unmute;
+                initalMusicPlayer();
             }
-        });
-        setVisible(true);
-    }
-
-    private class HomePanel extends JPanel{
-        public int FRAME_WIDTH = 600, FRAME_HEIGHT = 800;
-        public HomePanel(){
-            setPreferredSize();
+            frame.revalidate();
+            frame.repaint();
+            try {
+                Thread.sleep(25);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        // private Image TetrisLogo;
 
-        // public StartPanel(){
-        //     try{
-        //         TetrisLogo = ImageIO.read(new File("img/cover.png"));
-        //     }
-        //     catch(IOException e){
-        //         e.printStackTrace();
-        //     }
-        // }
+        stopMusicPlayer();
+        removePanel(frame);
+    }
 
-        // @Override
-        // protected void paintComponent(Graphics g){
-        //     super.paintComponent(g);
-        //     g.setColor(Color.BLACK);
-        //     g.fillRect(0, 0, getWidth(), getHeight());
+    public boolean getUnmute() {
+        return this.unmute;
+    }
 
-        //     // paint Tetris logo
-        //     if(TetrisLogo != null){
-        //         int x = (getWidth() - TetrisLogo.getWidth(null)) / 2;
-        //         int y = 100;
-        //         g.drawImage(TetrisLogo, x, y, this);
-        //     }
+    // ----------------
+    private void stopMusicPlayer() {
+        // stop the player if the player isn't null
+        if (music_player != null) {
+            music_player.stopPlaying();
+            music_player.interrupt();
+        }
+        music_player = null;
+    }
 
-        //     // paint control keys and directions
-        //     // g.setColor(Color.WHITE);
-        //     // g.setFont(new Font("Arial", Font.PLAIN, 20));
+    private void initalMusicPlayer() {
+        // start the player or not (based on sound mode)
+        if (music_player != null)
+            stopMusicPlayer();
+        if (unmute) {
+            music_player = new MusicPlayer("HomeState", true);
+            music_player.start();
+        } else
+            music_player = null;
+    }
 
-        //     int baseX = 150;
-        //     int baseY = getHeight() - 80;
+    private void removePanel(JFrame frame) {
+        background_panel.removeAll();
+        background_panel.revalidate();
+        frame.getContentPane().remove(background_panel);
+    }
 
-        //     // paint "Space" frame and text
-        //     g.fillRect(baseX, baseY - 30, 50, 50);
-        //     g.setColor(Color.BLACK);
-        //     g.drawString("Space", baseX + 10, baseY + 10);
-        //     g.setColor(Color.WHITE);
-        //     g.drawString("Hard drop", baseX + 60, baseY + 5);
+    private boolean unmute;
+    private MusicPlayer music_player = null;
+    private HomePanel background_panel;
+}
 
-        //     baseX += 300;
+class HomePanel extends JPanel implements ScreenPanel {
+    public static final int FRAME_WIDTH = 800, FRAME_HEIGHT = 800;
 
-        //     // paint "down arrow" frame and text
-        //     g.fillRect(baseX, baseY - 30, 50, 50);
-        //     g.setColor(Color.BLACK);
-        //     g.drawString("\u2193", baseX + 10, baseY + 10);
-        //     g.setColor(Color.WHITE);
-        //     g.drawString("Soft drop", baseX + 60, baseY + 5);
+    private JSlider brightnessSlider;
+    private float brightness = 1.0f;
 
-        //     baseX += 200;
+    public HomePanel(boolean unmute) {
+        this.unmute = unmute;
+        setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
+        setFocusable(true);
+        setLayout(null);
+        setBackground(Color.BLACK);
 
-        //     // paint "left&right arrow" frame and text
-        //     g.fillRect(baseX, baseY - 30, 100, 50);
-        //     g.setColor(Color.BLACK);
-        //     g.drawString("\u2190 \u2192", baseX + 10, baseY + 10);
-        //     g.setColor(Color.WHITE);
-        //     g.drawString("Move", baseX + 110, baseY + 5);
+        buildEnterLabel();
+        buildkeyboardDescription();
+        buildGameCover();
+        buildBackground_Img();
+        buildSoundIcon();
+        buildBrightnessSlider();
 
-        //     baseX += 250;
+        key_handler = new HomeKeyHandler();
+        addKeyListener(key_handler);
 
-        //     // paint "A&D arrow" frame and text
-        //     g.fillRect(baseX, baseY - 30, 100, 50);
-        //     g.setColor(Color.BLACK);
-        //     g.drawString("A D", baseX + 10, baseY + 10);
-        //     g.setColor(Color.WHITE);
-        //     g.drawString("Rotate", baseX + 110, baseY + 5);
+        mouse_handler = new HomeMouseHandler() {
+            public void mouseClicked(MouseEvent e) {
+                requestFocusInWindow();
+            }
+        };
+        addMouseListener(mouse_handler);
+    }
+
+    public void enterLabelColorChange() {
+        // this function makes the enter_game_label flashing
+        int r = enter_game_label.getForeground().getRed();
+        int g = enter_game_label.getForeground().getGreen();
+        int b = enter_game_label.getForeground().getBlue();
+        if ((r == 0 && g == 0 && b == 0) || (r == 255 && g == 255 && b == 255))
+            color_change *= (-1);
+        r += color_change * 5;
+        g += color_change * 5;
+        b += color_change * 5;
+        enter_game_label.setForeground(new Color(r, g, b));
+    }
+
+    public HomeKeyHandler getKeyHandler() {
+        return key_handler;
+    }
+
+    public HomeMouseHandler getMouseHandler() {
+        return mouse_handler;
+    }
+
+    public boolean checkClickSoundIcon() {
+        int[] sound_icon_range = { 5, 5, 75, 75 }; // [0]:x_start, [1]:y_start, [2]:x_end, [3]:y_end
+        Point released_point = this.getMouseHandler().getReleased();
+        if (released_point != null &&
+                released_point.getX() >= sound_icon_range[0] && released_point.getX() <= sound_icon_range[2] &&
+                released_point.getY() >= sound_icon_range[1] && released_point.getY() <= sound_icon_range[3]) {
+            this.getMouseHandler().resetReleased();
+            unmute = !unmute;
+            changeSoundIcon();
+            return true;
+        }
+        return false;
+    }
+
+    // -----------------------
+    // this function with different signature
+    private JLabel labelMake(int center_x, int center_y, String words) {
+        int words_width = 100, words_height = 30;
+        return labelMake(center_x, center_y, words, words_width, words_height, 20);
+    }
+
+    private void buildEnterLabel() {
+        enter_game_label = labelMake(400, 450, "Press Enter to play", 250, 50, 25);
+        enter_game_label.setForeground(new Color(255, 255, 255));
+        // enter_game_label
+        add(enter_game_label);
+    }
+
+    private void buildkeyboardDescription() {
+        // Describe "How to play"
+        int x_start = 350;
+        int y_start = 550;
+        JLabel space = labelMake(x_start, y_start, "Space");
+        space.setForeground(Color.BLACK);
+        space.setOpaque(true);
+
+        JLabel down = labelMake(x_start, y_start + 40, "↓", 30, 30, 20);
+        down.setForeground(Color.BLACK);
+        down.setOpaque(true);
+
+        JLabel left = labelMake(x_start - 20, y_start + 40 * 2, "←", 30, 30, 20);
+        left.setForeground(Color.BLACK);
+        left.setOpaque(true);
+
+        JLabel right = labelMake(x_start + 20, y_start + 40 * 2, "→", 30, 30, 20);
+        right.setForeground(Color.BLACK);
+        right.setOpaque(true);
+
+        JLabel left_rotate = labelMake(x_start - 20, y_start + 40 * 3, "A", 30, 30, 20);
+        left_rotate.setForeground(Color.BLACK);
+        left_rotate.setOpaque(true);
+
+        JLabel right_rotate = labelMake(x_start + 20, y_start + 40 * 3, "D", 30, 30, 20);
+        right_rotate.setForeground(Color.BLACK);
+        right_rotate.setOpaque(true);
+
+        JLabel space_descrip = labelMake(x_start + 150, y_start, "Hard drop");
+        space_descrip.setForeground(Color.WHITE);
+
+        JLabel down_descrip = labelMake(x_start + 150, y_start + 40 * 1, "Soft drop");
+        down_descrip.setForeground(Color.WHITE);
+
+        JLabel move_descrip = labelMake(x_start + 150, y_start + 40 * 2, "Move");
+        move_descrip.setForeground(Color.WHITE);
+
+        JLabel rotate_descrip = labelMake(x_start + 150, y_start + 40 * 3, "Rotate");
+        rotate_descrip.setForeground(Color.WHITE);
+
+        add(space);
+        add(down);
+        add(left);
+        add(right);
+        add(left_rotate);
+        add(right_rotate);
+
+        add(space_descrip);
+        add(down_descrip);
+        add(move_descrip);
+        add(rotate_descrip);
+    }
+
+    private void buildGameCover() {
+
+        ImageIcon cover = new ImageIcon(Paths.get("img", "game_img", "cover.png").toString());
+        JLabel coverLabel = labelMake(400, 270, "", 250, 250, 20);
+        coverLabel.setIcon(cover);
+        add(coverLabel);
+    }
+
+    private void buildBackground_Img() {
+        ImageIcon background_img1 = new ImageIcon(Paths.get("img", "game_img", "background_img1.png").toString());
+        JLabel background_Label1 = labelMake(FRAME_WIDTH / 4 + 10, (FRAME_HEIGHT / 3) * 2 + 50, "", FRAME_WIDTH / 2,
+                FRAME_HEIGHT / 2, 20);
+        background_Label1.setIcon(background_img1);
+        add(background_Label1);
+
+        ImageIcon background_img2 = new ImageIcon(Paths.get("img", "game_img", "background_img2.png").toString());
+        JLabel background_Label2 = labelMake((FRAME_WIDTH / 4) * 3 - 14, (FRAME_HEIGHT / 3) * 2 + 75, "",
+                FRAME_WIDTH / 2, FRAME_HEIGHT / 2, 20);
+        background_Label2.setIcon(background_img2);
+        add(background_Label2);
+    }
+
+    private void buildSoundIcon() {
+        sound_icon = labelMake(40, 40, "", 70, 70, 10);
+        sound_icon.setForeground(Color.WHITE);
+        changeSoundIcon();
+        add(sound_icon);
+    }
+
+    private void changeSoundIcon() {
+        final Map<Boolean, ImageIcon> SOUND_ICONS = new HashMap<>() {
+            {
+                ;
+                put(true, new ImageIcon(Paths.get("img", "game_img", "unmute.png").toString()));
+                put(false, new ImageIcon(Paths.get("img", "game_img", "mute.png").toString()));
+            }
+        };
+        sound_icon.setIcon(SOUND_ICONS.get(unmute));
+    }
+
+    private void buildBrightnessSlider() {
+        JLabel brightnessLabel = new JLabel("Brightness:");
+        brightnessLabel.setFont(brightnessLabel.getFont().deriveFont(Font.BOLD));
+        brightnessLabel.setForeground(Color.WHITE);
+        brightnessLabel.setBounds(FRAME_WIDTH - 260, 15, 100, 30);
+        add(brightnessLabel);
+
+        brightnessSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 100);
+        brightnessSlider.setBounds(FRAME_WIDTH - 150, 10, 120, 50);
+        brightnessSlider.setOpaque(false);
+        brightnessSlider.setForeground(Color.WHITE);
+        brightnessSlider.setPaintTicks(true);
+        brightnessSlider.setMajorTickSpacing(25);
+        brightnessSlider.setPaintTrack(true);
+        brightnessSlider.addChangeListener(e -> {
+            brightness = brightnessSlider.getValue() / 100.0f;
+            setWindowOpacity(brightness);
+        });
+        add(brightnessSlider);
+    }
+
+    private void setWindowOpacity(float opacity) {
+        Window window = SwingUtilities.getWindowAncestor(this);
+        if (window != null) {
+            WindowOpacity.setWindowOpacity(window, opacity);
+        }
+    }
+
+    private HomeKeyHandler key_handler = null;
+    private HomeMouseHandler mouse_handler = null;
+
+    private JLabel enter_game_label = null;
+    private int color_change = 1;
+
+    private JLabel sound_icon = null;
+    private boolean unmute = true;
+}
+
+class WindowOpacity {
+    public static void setWindowOpacity(Window window, float opacity) {
+        if (window.isDisplayable()) {
+            window.setOpacity(opacity);
+        } else {
+            window.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowOpened(WindowEvent e) {
+                    e.getWindow().removeWindowListener(this);
+                    e.getWindow().setOpacity(opacity);
+                }
+            });
+        }
     }
 }
 
-private void enterGame(){
-    JOptionPane.showMessageDialog(this, "Entering the game...");
-    dispose();  // close current window
+class HomeKeyHandler implements KeyListener {
+    @Override
+    public void keyPressed(KeyEvent e) {
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        // Press Enter to play game
+        int key_code = e.getKeyCode();
+        if (key_code == KeyEvent.VK_ENTER)
+            pressed_enter = true;
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    public boolean checkEnter() {
+        return pressed_enter;
+    }
+
+    // ---------------------------
+    private boolean pressed_enter = false;
 }
 
-public static void main(String[] args){
-    SwingUtilities.invokeLater(() -> new HomeScreen());
-}
+class HomeMouseHandler implements MouseListener {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+    }
 
-// class JFrame from package javax.swing.*
-// class JPanel from package javax.swing.*
-// interface KeyListener from package java.awt.event.*
-// class Dimension from package java.awt.*
-// class MouseAdapter from package java.awt.event.*
-// class Font from package java.awt.*
-// class ImageIcon from package javax.swing.*
+    @Override
+    public void mousePressed(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        released_point = e.getPoint();
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+    }
+
+    public Point getReleased() {
+        return released_point;
+    }
+
+    public void resetReleased() {
+        released_point = null;
+    }
+
+    // ---------------
+    private Point released_point = null;
+}
