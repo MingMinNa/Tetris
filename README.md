@@ -22,7 +22,7 @@
 <img src="https://github.com/MingMinNa/Tetris/blob/v2/img/game_display/GameClear.png" alt="GameClear.png" width="200" height="200">
 
 ### 注意事項
-1. 若要執行此程式，請先下載 Jlayer(用於播放 mp3)，並匯入。__[ 在做此程式時，所下載的版本為 Jlayer1.0.1 ]__ 
+1. ~~若要執行此程式，請先下載 Jlayer(用於播放 mp3)，並匯入。__[ 在做此程式時，所下載的版本為 Jlayer1.0.1 ]__~~
 2. 由於怕把遊戲音樂有版權問題，所以我並沒有把音樂放上來，請先自行尋找 5 個音檔( mp3格式)，並將其依照 GameMusic.txt 裡面所述重新命名，再放進 sound 資料夾內。
 
 ### 新增功能
