@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 
 import blocks.*;
 import musicPlayer.MusicPlayer;
+import musicPlayer.SoundType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,8 +28,8 @@ public class GameScreen {
     public static int GAME_CLEAR_SCORE = 1300;
     public static int time_ticks = 50;
 
-    public GameScreen(JFrame frame, boolean unmute){
-        this.unmute = unmute;
+    public GameScreen(JFrame frame, SoundType sound_mode){
+        this.sound_mode = sound_mode;
         for(int i = 0; i < game_area_cells.length; i ++){
             for(int j = 0; j < game_area_cells[0].length; j ++){
                 game_area_cells[i][j] = new Cell(j, i, "black");
@@ -83,7 +84,7 @@ public class GameScreen {
 
             GAME_END_LABEL:while(true){
                 // If the score reach the requirement to the next state, change the game music and enhance the game level(hardness).
-                if(checkNextGameState() && unmute){
+                if(checkNextGameState() && sound_mode == SoundType.UNMUTE){
                     if(music_player != null){music_player.stopPlaying(); music_player.interrupt();}
                     music_player = new MusicPlayer("GameState" + Integer.toString(current_speedup_state), true);
                     music_player.start();
@@ -476,7 +477,7 @@ public class GameScreen {
             }
             if(del_line == 0)   return;
     
-            if(unmute){
+            if(sound_mode == SoundType.UNMUTE){
                 MusicPlayer delete_player = new MusicPlayer("DeleteLine", false);
                 delete_player.start();
             }
@@ -513,7 +514,7 @@ public class GameScreen {
     // Game_state_data
     private int current_speedup_state = 0; 
     private int score = 0;
-    private boolean unmute;
+    private SoundType sound_mode;
 }
 
 class GamePanel extends JPanel implements ScreenPanel{

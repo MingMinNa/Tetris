@@ -12,9 +12,16 @@ import java.util.Map;
 import java.nio.file.Paths;
 
 public class MusicPlayer extends Thread {
-    
+    // mp3 file path
+    public final static Map<String, String> music_paths = new HashMap<>(){{
+        put("GameState1", Paths.get("music", "GameState1.mp3").toString());
+        put("GameState2", Paths.get("music", "GameState2.mp3").toString());
+        put("GameState3", Paths.get("music", "GameState3.mp3").toString());
+        put("HomeState", Paths.get("music", "HomeState.mp3").toString());
+        put("DeleteLine", Paths.get("music", "DeleteLine.mp3").toString());
+    }};
     public MusicPlayer(String current_state, boolean repeat) {
-        this.mp3_file_path = state_music.get(current_state);
+        this.mp3_file_path = music_paths.get(current_state);
         this.repeat = repeat;
         this.ready = false;
     }
@@ -62,12 +69,5 @@ public class MusicPlayer extends Thread {
     private Player player;
     private boolean is_playing, repeat, ready;
     
-    // mp3 file path
-    private final Map<String, String> state_music = new HashMap<>(){{
-        put("GameState1", Paths.get("music", "GameState1.mp3").toString());
-        put("GameState2", Paths.get("music", "GameState2.mp3").toString());
-        put("GameState3", Paths.get("music", "GameState3.mp3").toString());
-        put("HomeState", Paths.get("music", "HomeState.mp3").toString());
-        put("DeleteLine", Paths.get("music", "DeleteLine.mp3").toString());
-    }};
+    
 }

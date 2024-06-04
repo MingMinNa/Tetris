@@ -11,22 +11,25 @@ import java.util.Map;
 
 import states.ScreenPanel;
 import musicPlayer.MusicPlayer;
+import musicPlayer.SoundType;
 
 
 public class HomeScreen {
-    public HomeScreen(JFrame frame, boolean unmute){
-        background_panel = new HomePanel(unmute);
+    public HomeScreen(JFrame frame, SoundType sound_mode){
+        background_panel = new HomePanel(sound_mode);
         frame.getContentPane().add(background_panel);
         background_panel.requestFocusInWindow();
-        this.unmute = unmute;
+        this.sound_mode = sound_mode;
 
         initalMusicPlayer();
         while(background_panel.getKeyHandler().checkEnter() == false){
 
             background_panel.enterLabelColorChange();
-            if(background_panel.checkClickSoundIcon())
+            if(this.sound_mode != SoundType.PATH_ERROR && background_panel.checkClickSoundIcon())
             {
-                this.unmute = !this.unmute;
+                // change sound_mode
+                if(this.sound_mode == SoundType.UNMUTE) this.sound_mode = SoundType.MUTE;  
+                else this.sound_mode = SoundType.UNMUTE;
                 initalMusicPlayer();
             }
             frame.revalidate();
@@ -38,8 +41,8 @@ public class HomeScreen {
         stopMusicPlayer();
         removePanel(frame);
     }
-    public boolean getUnmute(){
-        return this.unmute;
+    public SoundType getSoundMode(){
+        return this.sound_mode;
     }
     // ----------------
     private void stopMusicPlayer(){
@@ -52,7 +55,7 @@ public class HomeScreen {
     private void initalMusicPlayer(){
         // start the player or not (based on sound mode)
         if(music_player != null) stopMusicPlayer();
-        if(unmute) {
+        if(sound_mode == SoundType.UNMUTE) {
             music_player = new MusicPlayer("HomeState", true);
             music_player.start();
         }
@@ -65,15 +68,15 @@ public class HomeScreen {
         frame.getContentPane().remove(background_panel);
     }
 
-    private boolean unmute;
+    private SoundType sound_mode;
     private MusicPlayer music_player = null;
     private HomePanel background_panel;
 }
 class HomePanel extends JPanel implements ScreenPanel{
     public static final int FRAME_WIDTH = 800, FRAME_HEIGHT = 800;
     
-    public HomePanel(boolean unmute) {
-        this.unmute = unmute;
+    public HomePanel(SoundType sound_mode) {
+        this.sound_mode = sound_mode;
         setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         setFocusable(true);
         setLayout(null);
@@ -120,7 +123,8 @@ class HomePanel extends JPanel implements ScreenPanel{
             released_point.getY() >= sound_icon_range[1] && released_point.getY() <= sound_icon_range[3])
         {
             this.getMouseHandler().resetReleased();
-            unmute = !unmute;
+            if(sound_mode == SoundType.UNMUTE) sound_mode = SoundType.MUTE;  
+            else sound_mode = SoundType.UNMUTE;
             changeSoundIcon();
             return true;
         }
@@ -213,11 +217,11 @@ class HomePanel extends JPanel implements ScreenPanel{
     }
     
     private void changeSoundIcon(){
-        final Map<Boolean, ImageIcon> SOUND_ICONS = new HashMap<>(){{
-            put(true, new ImageIcon(Paths.get("img", "game_img", "unmute.png").toString()));
-            put(false, new ImageIcon(Paths.get("img", "game_img", "mute.png").toString()));
+        final Map<SoundType, ImageIcon> SOUND_ICONS = new HashMap<>(){{
+            put(SoundType.UNMUTE, new ImageIcon(Paths.get("img", "game_img", "unmute.png").toString()));
+            put(SoundType.MUTE, new ImageIcon(Paths.get("img", "game_img", "mute.png").toString()));
         }};
-        sound_icon.setIcon(SOUND_ICONS.get(unmute));
+        sound_icon.setIcon(SOUND_ICONS.get(this.sound_mode));
     }
 
 
@@ -228,7 +232,7 @@ class HomePanel extends JPanel implements ScreenPanel{
     private int color_change = 1;
 
     private JLabel sound_icon = null;
-    private boolean unmute = true;
+    private SoundType sound_mode = SoundType.UNMUTE;
 }
 
 class HomeKeyHandler implements KeyListener{
