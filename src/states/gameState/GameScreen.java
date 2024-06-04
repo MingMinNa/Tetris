@@ -1,4 +1,4 @@
-package State.gameState;
+package states.gameState;
 
 
 import javax.swing.*;
@@ -8,7 +8,7 @@ import java.awt.event.*;
 import java.nio.file.Paths;
 
 import blocks.*;
-import music.MusicPlayer;
+import musicPlayer.MusicPlayer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.function.*;
 
-import State.ScreenPanel;
+import states.ScreenPanel;
 
 
 

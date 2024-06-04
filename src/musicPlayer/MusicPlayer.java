@@ -1,4 +1,4 @@
-package music;
+package musicPlayer;
 
 
 import javazoom.jl.decoder.JavaLayerException;
@@ -64,10 +64,10 @@ public class MusicPlayer extends Thread {
     
     // mp3 file path
     private final Map<String, String> state_music = new HashMap<>(){{
-        put("GameState1", Paths.get("sound", "GameState1.mp3").toString());
-        put("GameState2", Paths.get("sound", "GameState2.mp3").toString());
-        put("GameState3", Paths.get("sound", "GameState3.mp3").toString());
-        put("HomeState", Paths.get("sound", "HomeState.mp3").toString());
-        put("DeleteLine", Paths.get("sound", "DeleteLine.mp3").toString());
+        put("GameState1", Paths.get("music", "GameState1.mp3").toString());
+        put("GameState2", Paths.get("music", "GameState2.mp3").toString());
+        put("GameState3", Paths.get("music", "GameState3.mp3").toString());
+        put("HomeState", Paths.get("music", "HomeState.mp3").toString());
+        put("DeleteLine", Paths.get("music", "DeleteLine.mp3").toString());
     }};
 }

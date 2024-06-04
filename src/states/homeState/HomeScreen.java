@@ -1,4 +1,4 @@
-package State.homeState;
+package states.homeState;
 
 import javax.swing.*;
 
@@ -9,8 +9,8 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import State.ScreenPanel;
-import music.MusicPlayer;
+import states.ScreenPanel;
+import musicPlayer.MusicPlayer;
 
 
 public class HomeScreen {

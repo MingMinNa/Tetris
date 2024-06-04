@@ -1,9 +1,9 @@
-package State.gameState;
+package states.gameState;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import State.ScreenPanel;
+import states.ScreenPanel;
 
 public class GameEND{
     public GameEND(GamePanel background_panel){

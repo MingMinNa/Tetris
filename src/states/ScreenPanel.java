@@ -1,4 +1,4 @@
-package State;
+package states;
 import javax.swing.JLabel;
 import java.awt.*;
 
