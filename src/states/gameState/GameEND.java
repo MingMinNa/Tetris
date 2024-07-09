@@ -119,7 +119,7 @@ class GameEndPanel extends JPanel implements ScreenPanel{
         continue_button_panel.add(continue_button_text);
 
         add(continue_button_panel);
-        add(labelMake(PANEL_WIDTH / 2, PANEL_HEIGHT / 2 + 20, "Pressed Esc to continue", 250, 100, 20));
+        add(labelMake(PANEL_WIDTH / 2, PANEL_HEIGHT / 2 + 20, "Press Esc to continue", 250, 100, 20));
 
 
         button_panel_object[0] = continue_button_panel;
