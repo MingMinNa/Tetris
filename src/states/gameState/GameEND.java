@@ -23,16 +23,17 @@ public class GameEND{
 
         boolean pressed_button = false;
         while(true){
-            Point released_point = game_end_panel.getHandler().getReleased();
-            Point pressed_point = game_end_panel.getHandler().getPressed();
-            if(checkTouchButton(released_point) && pressed_button)
+            // [0] is released, [1] is pressed;
+            Point mouse_touch[] = {game_end_panel.getMouseHandler().getReleased(), game_end_panel.getMouseHandler().getPressed()};
+            boolean esc_touch[] = {game_end_panel.getKeyHandler().getReleased(), game_end_panel.getKeyHandler().getPressed()};
+            if((checkTouchButton(mouse_touch[0]) || esc_touch[0]) && pressed_button)
                 break;
-            pressed_button = setButtonState(pressed_point);
+            pressed_button = setButtonState(mouse_touch[1], esc_touch[1]);
             // add little delay to prevent error
             try {Thread.sleep(20);} 
             catch (InterruptedException e) {e.printStackTrace();}
         }
-        setButtonState(null);
+        setButtonState(null, false);
         try {Thread.sleep(100);} 
         catch (InterruptedException e) {e.printStackTrace();}
     }
@@ -45,11 +46,11 @@ public class GameEND{
             return true;
         return false;
     }
-    private boolean setButtonState(Point pressed_point){
+    private boolean setButtonState(Point pressed_point, boolean pressed_esc){
         Object [] button_panel_objects = game_end_panel.getButtonObjects();
         Color [] object_color = {Color.WHITE, Color.BLACK};
         boolean pressed = false;
-        if(checkTouchButton(pressed_point)){
+        if(checkTouchButton(pressed_point) || pressed_esc){
             object_color[0] = Color.BLACK;
             object_color[1] = Color.WHITE;
             pressed = true;
@@ -79,53 +80,64 @@ class GameEndPanel extends JPanel implements ScreenPanel{
 
         buildContinueButton();
 
-        game_end_handler = new GameEndHandler(){
-            public void mouseClicked(MouseEvent e) {
-                requestFocusInWindow();
-            }
+        game_end_mouse_handler = new GameEndMouseHandler(){
+            public void mouseClicked(MouseEvent e) {requestFocusInWindow();}
         };
-        addMouseListener(game_end_handler);
+        game_end_key_handler = new GameEndKeyHandler();
+
+        addMouseListener(game_end_mouse_handler);
+        addKeyListener(game_end_key_handler);
     }
 
     public void setTitle(String title, Color color){
         JLabel title_label = labelMake(GameEndPanel.PANEL_WIDTH / 2, GameEndPanel.PANEL_HEIGHT / 2 - 40, title, 400, 300, 50);
         title_label.setForeground(color);
         add(title_label);
+        this.requestFocusInWindow();
     }
+    
     public int [] getButtonRange(){
         return continue_button_range;
     }
-    public GameEndHandler getHandler(){
-        return game_end_handler;
+    public GameEndMouseHandler getMouseHandler(){
+        return game_end_mouse_handler;
+    }
+    public GameEndKeyHandler getKeyHandler(){
+        return game_end_key_handler;
     }
     public Object [] getButtonObjects(){
         return button_panel_object;
     }
+    
     // ---------------------------------
     private void buildContinueButton(){
         int button_panel_width = 100, button_panel_height = 40;
         JLabel continue_button_text = labelMake(button_panel_width / 2, button_panel_height / 2, "Continue", 40, 40, 20);
         JPanel continue_button_panel = new JPanel();
-        continue_button_panel.setBounds((PANEL_WIDTH - button_panel_width) / 2, (PANEL_HEIGHT - button_panel_height) / 2 + 50, button_panel_width, button_panel_height);
+        continue_button_panel.setBounds((PANEL_WIDTH - button_panel_width) / 2, (PANEL_HEIGHT - button_panel_height) / 2 + 80, button_panel_width, button_panel_height);
         continue_button_panel.setBackground(Color.WHITE);
         continue_button_panel.add(continue_button_text);
+
         add(continue_button_panel);
+        add(labelMake(PANEL_WIDTH / 2, PANEL_HEIGHT / 2 + 20, "Pressed Esc to continue", 250, 100, 20));
+
 
         button_panel_object[0] = continue_button_panel;
         button_panel_object[1] = continue_button_text;
 
         continue_button_range[0] = (PANEL_WIDTH - button_panel_width) / 2;
         continue_button_range[2] = continue_button_range[0] + button_panel_width;
-        continue_button_range[1] = (PANEL_HEIGHT - button_panel_height) / 2 + 50;
+        continue_button_range[1] = (PANEL_HEIGHT - button_panel_height) / 2 + 80;
         continue_button_range[3] = continue_button_range[1] + button_panel_height;
     }
     
     private int continue_button_range[] = new int[4]; // [0]:x_start, [1]:y_start, [2]:x_end, [3]:y_end
-    private GameEndHandler game_end_handler;
+    private GameEndMouseHandler game_end_mouse_handler;
+    private GameEndKeyHandler game_end_key_handler;
     private Object button_panel_object[] = new Object[2]; // [0]:panel, [1]:text
 }
 
-class GameEndHandler implements MouseListener{
+class GameEndMouseHandler implements MouseListener{
     @Override
     public void mouseClicked(MouseEvent e) {}
     @Override
@@ -150,4 +162,30 @@ class GameEndHandler implements MouseListener{
         return released_point;
     }
     private Point pressed_point = null, released_point = null;
+}
+
+
+class GameEndKeyHandler implements KeyListener{
+    @Override
+    public void keyTyped(KeyEvent e){}
+    @Override
+    public void keyPressed(KeyEvent e){
+        int code = e.getKeyCode();
+        if(code == KeyEvent.VK_ESCAPE)
+            pressed_esc = true;
+    }
+    @Override
+    public void keyReleased(KeyEvent e){
+        int code = e.getKeyCode();
+        if(code == KeyEvent.VK_ESCAPE)
+            released_esc = true;
+    }
+
+    public boolean getPressed(){
+        return pressed_esc;
+    }
+    public boolean getReleased(){
+        return released_esc;
+    }
+    private boolean released_esc, pressed_esc;
 }
