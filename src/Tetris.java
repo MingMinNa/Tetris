@@ -3,7 +3,7 @@ import java.util.Collection;
 
 import javax.swing.*;
 
-import states.gameState.*;
+import states.gameState.runner.GameScreen;
 import states.homeState.*;
 import musicPlayer.MusicPlayer;
 import musicPlayer.SoundType;

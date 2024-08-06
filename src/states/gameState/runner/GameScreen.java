@@ -1,11 +1,6 @@
-package states.gameState;
-
+package states.gameState.runner;
 
 import javax.swing.*;
-
-import java.awt.*;
-import java.awt.event.*;
-import java.nio.file.Paths;
 
 import blocks.*;
 import musicPlayer.MusicPlayer;
@@ -18,7 +13,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.function.*;
 
-import states.ScreenPanel.*;
+import states.gameState.end.GameEND;
 
 public class GameScreen { 
     public static final int GAME_SPEEDUP_STATE_SCORE[] = {0, 500, 1000, -1}; // the score required into the next state
@@ -51,8 +46,8 @@ public class GameScreen {
 
         // after building the component, change control to GameRunner
         boolean game_over = new GameRunner().run(frame);
-        
-        background_panel.getGameEndPanel().GameEndState(game_over);
+        new GameEND(background_panel, game_over);
+        // background_panel.setComponentZOrder(background_panel.getGameEndPanel().game_end_panel, 0);
 
         // Remove all the components in the GameScreen
         removePanel(frame);
@@ -93,7 +88,7 @@ public class GameScreen {
                 
                 if(auto_fall_ticks >= GAME_STATE_AUTO_FALL_TICK[current_speedup_state]){
                     auto_fall_ticks = 0;
-                    background_panel.blockPositionUpdate(game_area_cells);
+                    background_panel.updateBlockPosition(game_area_cells);
         
                     if(tryMove("down") == false){
                         if(current_cells[3].getY() <= 2){
@@ -103,7 +98,7 @@ public class GameScreen {
                         current_block = null;
                         
                         checkGameLine(game_area_cells);
-                        background_panel.blockPositionUpdate(game_area_cells);
+                        background_panel.updateBlockPosition(game_area_cells);
                     }
                     background_panel.revalidate();
                     frame.revalidate();
@@ -173,7 +168,7 @@ public class GameScreen {
                         
 
                     background_panel.changeStateColor(current_speedup_state);
-                    background_panel.blockPositionUpdate(game_area_cells);
+                    background_panel.updateBlockPosition(game_area_cells);
                     background_panel.revalidate();
                     frame.revalidate();
                     frame.repaint();
@@ -466,7 +461,7 @@ public class GameScreen {
                 else{
                     for(int j = 0; j < game_area_cells[0].length; j++){
                         game_area_cells[i][j].setColor("black");
-                        background_panel.blockPositionUpdate(game_area_cells);
+                        background_panel.updateBlockPosition(game_area_cells);
                         try {Thread.sleep(50);}
                         catch(InterruptedException e) {e.printStackTrace();}
                     }

@@ -1,4 +1,4 @@
-package states.gameState;
+package states.gameState.runner;
 
 
 import javax.swing.*;
@@ -35,7 +35,6 @@ public class GamePanel extends JPanel implements ScreenPanel{
         setFocusable(true);
         setBackground(Color.BLACK);
         setLayout(null);
-
         
         
         buildBoard();
@@ -47,7 +46,6 @@ public class GamePanel extends JPanel implements ScreenPanel{
             }
         });
 
-        game_end_panel = new GameEND(this);
     }
     public void updateStateDisplay(int state){
         if(state_display != null)   this.remove(state_display);
@@ -173,7 +171,7 @@ public class GamePanel extends JPanel implements ScreenPanel{
         }
         return;
     }
-    public void blockPositionUpdate(Cell [][] game_area_cells){
+    public void updateBlockPosition(Cell [][] game_area_cells){
 
         for(int i = 0; i < GAME_AREA_Y_CNT; i++){
             for(int j = 0; j < GAME_AREA_X_CNT; j++){
@@ -248,9 +246,6 @@ public class GamePanel extends JPanel implements ScreenPanel{
     }
     public JLabel[][][] getCellBorder(){
         return this.label_cell_border;
-    }
-    public GameEND getGameEndPanel(){
-        return this.game_end_panel;
     }
     public GameKeyHandler getHandler(){
         return this.handler;
@@ -341,7 +336,6 @@ public class GamePanel extends JPanel implements ScreenPanel{
     private JLabel [][] label_preview = new JLabel[PREVIEW_AREA_Y_CNT - 2][PREVIEW_AREA_X_CNT - 2];
     
     private JLabel [][][] label_cell_border = new JLabel[2][GAME_AREA_Y_CNT + 1][GAME_AREA_X_CNT + 1];
-    private GameEND game_end_panel = null;
     private GameKeyHandler handler = null;
     private JLabel state_display = null;
 }

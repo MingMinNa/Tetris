@@ -1,4 +1,4 @@
-package states.gameState;
+package states.gameState.runner;
 
 import java.awt.event.*;
 

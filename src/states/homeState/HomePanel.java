@@ -37,7 +37,7 @@ public class HomePanel extends JPanel implements ScreenPanel{
         };
         addMouseListener(mouse_handler);
     }
-    public void enterLabelColorChange(){
+    public void changeEnterLabelColor(){
         // this function makes the enter_game_label flashing
         int r = enter_game_label.getForeground().getRed();
         int g = enter_game_label.getForeground().getGreen();
